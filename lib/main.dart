@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'screen/main_page.dart';
 import 'screen/options.dart';
 import 'screen/add_exercise.dart';
 
-// main関数
-void main() => runApp(const MyApp()); //myAppというアプリを走らせる。
+void main() {
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  runApp(const MyApp());
+}
 
 // extends: MyappがStatelessWidgetを継承する。
 class MyApp extends StatelessWidget {

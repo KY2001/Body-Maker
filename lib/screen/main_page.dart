@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:direct_select/direct_select.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:overlay_support/overlay_support.dart';
 import '../module.dart';
 import 'package:smart_select/smart_select.dart';
@@ -519,6 +520,7 @@ class _MainPageState extends State<MainPage> {
       await initDatabase();
       await updateData();
     });
+    FlutterNativeSplash.remove();
   }
 
   // setstate()が呼ばれるたびに実行される。

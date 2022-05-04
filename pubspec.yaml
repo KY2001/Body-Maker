@@ -22,6 +22,7 @@ dependencies:
   overlay_support: ^1.2.1
   direct_select: ^2.0.0
   sticky_headers: ^0.2.0
+  flutter_native_splash: ^2.1.6
 
 dev_dependencies:
   flutter_test:
@@ -36,6 +37,7 @@ flutter:
   assets:
     - assets/
     - assets/sounds/
+    - assets/images/
 
   fonts:
     - family: NotoSerifJP
