@@ -2,35 +2,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:sqflite/sqflite.dart';
-
-String dbName = "/training_memo.db";
-AudioCache audioPlayer = AudioCache();
-dynamic db;
-double volume = 1.0;
-List<TableRow> recordsTodayTable = [];
-List<String> exerciseList = ['スクワット'];
-String exercise = 'ベンチプレス';
-double weight = 45;
-int rep = 10;
-int set = 3;
-double scoreToday = 0.0;
-double minWeight = 1;
-double maxWeight = 100;
-double intervalWeight = 1;
-double minRep = 1;
-double maxRep = 20;
-double minSet = 1;
-double maxSet = 10;
+import 'package:training_app/data.dart';
 
 Future<void> getDatabase() async {
   String path = (await getDatabasesPath()) + dbName;
-  db = await openDatabase(path, version: 1);
+  if (db == '') db = await openDatabase(path, version: 1);
 }
 
 Future<void> initDatabase() async {
-  await db.rawQuery('DROP TABLE IF EXISTS `record`');
-  await db.rawQuery('DROP TABLE IF EXISTS `exercise`');
-  await db.rawQuery('DROP TABLE IF EXISTS `options`');
+  // await db.rawQuery('DROP TABLE IF EXISTS `record`');
+  // await db.rawQuery('DROP TABLE IF EXISTS `options`');
+  // await db.rawQuery('DROP TABLE IF EXISTS `exercise`');
   await db.rawQuery(''' 
   CREATE TABLE IF NOT EXISTS `record` (
   `id` INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -44,7 +26,8 @@ Future<void> initDatabase() async {
   await db.rawQuery('''
   CREATE TABLE IF NOT EXISTS `exercise` (
    `id` INTEGER PRIMARY KEY AUTOINCREMENT,
-   `exercise` TEXT,
+   `name` TEXT UNIQUE,
+   `group` TEXT UNIQUE,
    `used_time` INTEGER
    )
    ''');
@@ -64,12 +47,14 @@ Future<void> initDatabase() async {
    `maxSet` TEXT default 10,
    `minSet` TEXT default 1)
    ''');
-  await db.rawQuery(
-      'INSERT INTO `exercise` (`exercise`, used_time) SELECT "ベンチプレス", "0" WHERE NOT EXISTS (SELECT * FROM `exercise`)');
+  await db.rawQuery('''
+  INSERT INTO `exercise` (`name`, `group`, `used_time`) SELECT "デッドリフト", "フリーウェイト(背中)", "0"
+  WHERE NOT EXISTS (SELECT * FROM `exercise`)
+  ''');
   await db.rawQuery('INSERT OR IGNORE INTO `options` (`id`) VALUES(1)');
   await db.rawQuery('SELECT * FROM `exercise` ORDER BY `used_time`').then((value) {
     for (var row in value) {
-      exerciseList.add(row['exercise']);
+      exerciseList.add({'used_time': 0, 'name': row['name'], 'group': row['group']});
     }
   });
   await db.rawQuery('SELECT * FROM `options`').then((value) {

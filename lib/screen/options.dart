@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
 import '../module.dart';
+import 'package:training_app/data.dart';
 
 class OptionalPage extends StatefulWidget {
   // コンストラクタ, MainPageを呼び出す際の引数などを定める。
@@ -18,10 +19,7 @@ class _OptionalPageState extends State<OptionalPage> {
             // widget.title: 受け取ったtitleを表示
             title: Row(mainAxisAlignment: MainAxisAlignment.start, children: const [
           Icon(Icons.settings),
-          Text(
-            " 設定",
-            textScaleFactor: 1.1,
-          ),
+          Text(" 設定", textScaleFactor: 1.1),
         ])),
         body: Container(
           alignment: Alignment.center,
@@ -50,7 +48,8 @@ class _OptionalPageState extends State<OptionalPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
-                      const Text('最大重量: ', textScaleFactor: 1.2),
+                      const Text('最大重量:', textScaleFactor: 1.2),
+                      const Spacer(),
                       Container(
                           alignment: Alignment.center,
                           width: 180,
@@ -66,7 +65,7 @@ class _OptionalPageState extends State<OptionalPage> {
                               if (double.tryParse(value) != null && double.parse(value) > minWeight) {
                                 audioPlayer.play('hero_simple-celebration-01.wav', volume: volume);
                                 showSimpleNotification(
-                                  const Text("変更を保存しました！"),
+                                  const Text("変更を保存しました！", style: TextStyle(color: Colors.white)),
                                   background: Colors.green,
                                   position: NotificationPosition.bottom,
                                   slideDismissDirection: DismissDirection.down,
@@ -78,7 +77,7 @@ class _OptionalPageState extends State<OptionalPage> {
                                 });
                               } else {
                                 showSimpleNotification(
-                                  const Text("有効な値を入力して下さい！"),
+                                  const Text("有効な値を入力して下さい！", style: TextStyle(color: Colors.white)),
                                   background: Colors.red,
                                   position: NotificationPosition.bottom,
                                   slideDismissDirection: DismissDirection.down,
@@ -110,7 +109,8 @@ class _OptionalPageState extends State<OptionalPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
-                      const Text('最小重量: ', textScaleFactor: 1.2),
+                      const Text('最小重量:', textScaleFactor: 1.2),
+                      const Spacer(),
                       Container(
                           alignment: Alignment.center,
                           width: 180,
@@ -126,7 +126,7 @@ class _OptionalPageState extends State<OptionalPage> {
                               if (double.tryParse(value) != null && double.parse(value) < maxWeight) {
                                 audioPlayer.play('hero_simple-celebration-01.wav', volume: volume);
                                 showSimpleNotification(
-                                  const Text("変更を保存しました！"),
+                                  const Text("変更を保存しました！", style: TextStyle(color: Colors.white)),
                                   background: Colors.green,
                                   position: NotificationPosition.bottom,
                                   slideDismissDirection: DismissDirection.down,
@@ -138,7 +138,7 @@ class _OptionalPageState extends State<OptionalPage> {
                                 });
                               } else {
                                 showSimpleNotification(
-                                  const Text("有効な値を入力して下さい！"),
+                                  const Text("有効な値を入力して下さい！", style: TextStyle(color: Colors.white)),
                                   background: Colors.red,
                                   position: NotificationPosition.bottom,
                                   slideDismissDirection: DismissDirection.down,
@@ -170,7 +170,8 @@ class _OptionalPageState extends State<OptionalPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
-                      const Text('重量の間隔: ', textScaleFactor: 1.2),
+                      const Text('重量の間隔:', textScaleFactor: 1.2),
+                      const Spacer(),
                       Container(
                           alignment: Alignment.center,
                           width: 180,
@@ -187,7 +188,7 @@ class _OptionalPageState extends State<OptionalPage> {
                                   double.parse(value) <= (maxWeight - minWeight)) {
                                 audioPlayer.play('hero_simple-celebration-01.wav', volume: volume);
                                 showSimpleNotification(
-                                  const Text("変更を保存しました！"),
+                                  const Text("変更を保存しました！", style: TextStyle(color: Colors.white)),
                                   background: Colors.green,
                                   position: NotificationPosition.bottom,
                                   slideDismissDirection: DismissDirection.down,
@@ -199,7 +200,7 @@ class _OptionalPageState extends State<OptionalPage> {
                                 });
                               } else {
                                 showSimpleNotification(
-                                  const Text("有効な値を入力して下さい！"),
+                                  const Text("有効な値を入力して下さい！", style: TextStyle(color: Colors.white)),
                                   background: Colors.red,
                                   position: NotificationPosition.bottom,
                                   slideDismissDirection: DismissDirection.down,
@@ -231,7 +232,8 @@ class _OptionalPageState extends State<OptionalPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
-                      const Text('最大レップ数: ', textScaleFactor: 1.2),
+                      const Text('最大レップ数:', textScaleFactor: 1.2),
+                      const Spacer(),
                       Container(
                           alignment: Alignment.center,
                           width: 180,
@@ -247,7 +249,7 @@ class _OptionalPageState extends State<OptionalPage> {
                               if (int.tryParse(value) != null && int.parse(value) > minRep) {
                                 audioPlayer.play('hero_simple-celebration-01.wav', volume: volume);
                                 showSimpleNotification(
-                                  const Text("変更を保存しました！"),
+                                  const Text("変更を保存しました！", style: TextStyle(color: Colors.white)),
                                   background: Colors.green,
                                   position: NotificationPosition.bottom,
                                   slideDismissDirection: DismissDirection.down,
@@ -259,7 +261,7 @@ class _OptionalPageState extends State<OptionalPage> {
                                 });
                               } else {
                                 showSimpleNotification(
-                                  const Text("有効な値を入力して下さい！"),
+                                  const Text("有効な値を入力して下さい！", style: TextStyle(color: Colors.white)),
                                   background: Colors.red,
                                   position: NotificationPosition.bottom,
                                   slideDismissDirection: DismissDirection.down,
@@ -291,7 +293,8 @@ class _OptionalPageState extends State<OptionalPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
-                      const Text('最大セット数: ', textScaleFactor: 1.2),
+                      const Text('最大セット数:', textScaleFactor: 1.2),
+                      const Spacer(),
                       Container(
                           alignment: Alignment.center,
                           width: 180,
@@ -307,7 +310,7 @@ class _OptionalPageState extends State<OptionalPage> {
                               if (int.tryParse(value) != null && int.parse(value) > minSet) {
                                 audioPlayer.play('hero_simple-celebration-01.wav', volume: volume);
                                 showSimpleNotification(
-                                  const Text("変更を保存しました！"),
+                                  const Text("変更を保存しました！", style: TextStyle(color: Colors.white)),
                                   background: Colors.green,
                                   position: NotificationPosition.bottom,
                                   slideDismissDirection: DismissDirection.down,
@@ -319,7 +322,7 @@ class _OptionalPageState extends State<OptionalPage> {
                                 });
                               } else {
                                 showSimpleNotification(
-                                  const Text("有効な値を入力して下さい！"),
+                                  const Text("有効な値を入力して下さい！", style: TextStyle(color: Colors.white)),
                                   background: Colors.red,
                                   position: NotificationPosition.bottom,
                                   slideDismissDirection: DismissDirection.down,
