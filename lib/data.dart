@@ -10,6 +10,17 @@ List<TableRow> recordsTodayTable = [];
 List<Map<String, dynamic>> exerciseList = [
   {'used_time': 0, 'name': 'ベンチプレス', 'group': 'フリーウェイト(胸)'}
 ];
+List<Map<String, dynamic>> foodList = [
+  {
+    'used_time': 0,
+    'name': '納豆',
+    'calorie': '100',
+    'protein': '8.4',
+    'fat': '4.9',
+    'carbohydrate': '7.4',
+    'group': '既製品'
+  }
+];
 int? selectedIndex = 0;
 String exercise = 'ベンチプレス';
 double weight = 45;
@@ -131,7 +142,7 @@ Map<String, List<Map<String, dynamic>>> exerciseSearchList = {
   ]
 };
 
-List<String> groupCandidate = [
+List<String> exerciseGroupCandidate = [
   'フリーウェイト(胸)',
   'マシン(胸)',
   '自重(胸)',
@@ -159,5 +170,13 @@ List<String> groupCandidate = [
   'フリーウェイト(全身)',
   'マシン(全身)',
   '自重(全身)',
+  'その他',
+];
+
+List<String> foodGroupCandidate = [
+  '主食',
+  '料理',
+  '既製品',
+  '飲料',
   'その他',
 ];

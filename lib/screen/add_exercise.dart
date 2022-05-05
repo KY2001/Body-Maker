@@ -81,7 +81,7 @@ class _AddExercisePageState extends State<AddExercisePage> {
           ),
           modalStyle: S2ModalStyle(backgroundColor: Colors.grey[850]),
           choiceStyle:
-              const S2ChoiceStyle(titleStyle: TextStyle(color: Colors.white), activeColor: Colors.white),
+          const S2ChoiceStyle(titleStyle: TextStyle(color: Colors.white), activeColor: Colors.white),
           tileBuilder: (context, state) {
             return S2Tile.fromState(
               state,
