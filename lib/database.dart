@@ -54,8 +54,8 @@ Future<void> initDatabase() async {
   CREATE TABLE IF NOT EXISTS `food_records` (
   `id` INTEGER PRIMARY KEY AUTOINCREMENT,
   `time` TEXT NOT NULL,
-  `food` TEXT NOT NULL,
-  `amount` TEXT NOT NULL
+  `name` TEXT NOT NULL,
+  `amount` TEXT NOT NULL,
   `calorie` TEXT NOT NULL,
   `protein` TEXT NOT NULL,
   `fat` TEXT NOT NULL,

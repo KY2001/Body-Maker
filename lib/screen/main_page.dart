@@ -26,14 +26,16 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
     Future(() async {
       await getDatabase();
       await initDatabase();
-      await updateData();
+      await updateExerciseData();
+      await updateFoodData();
     });
     FlutterNativeSplash.remove();
   }
 
   @override
   Widget build(BuildContext context) {
-    updateData();
+    updateExerciseData();
+    updateFoodData();
     return DefaultTabController(
         length: 2,
         child: Scaffold(
@@ -82,7 +84,7 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                         child: Table(
                             border: TableBorder.all(color: Colors.black),
                             defaultColumnWidth: const IntrinsicColumnWidth(),
-                            children: recordsTodayTable),
+                            children: exerciseRecordsTodayTable),
                       ),
                       const Text.rich(TextSpan(
                         style: TextStyle(fontSize: 21),
@@ -116,14 +118,14 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                         child: Table(
                             border: TableBorder.all(color: Colors.black),
                             defaultColumnWidth: const IntrinsicColumnWidth(),
-                            children: recordsTodayTable),
+                            children: foodRecordsTodayTable),
                       ),
                       Text.rich(TextSpan(
                         style: const TextStyle(fontSize: 21),
                         children: [
                           const TextSpan(text: "摂取カロリー: "),
                           TextSpan(
-                              text: "${scoreToday.toInt()}",
+                              text: "${calorieToday.toInt()}",
                               style: const TextStyle(fontWeight: FontWeight.bold)),
                           const TextSpan(text: " [kcal]"),
                         ],
@@ -241,7 +243,7 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                   ])));
   }
 
-  Future<void> updateData() async {
+  Future<void> updateExerciseData() async {
     if (db == '') await getDatabase();
     List<TableRow> _recordsTodayTable = [
       const TableRow(children: [
@@ -276,12 +278,53 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
         children: children,
       ));
     }
-    setState(() => recordsTodayTable = _recordsTodayTable);
+    setState(() => exerciseRecordsTodayTable = _recordsTodayTable);
     scoreToday = 0;
     for (var i in recordsToday) {
       scoreToday += (double.parse(i['weight'].toString()) *
           double.parse(i['rep'].toString()) *
           double.parse(i['set'].toString()));
+    }
+  }
+
+  Future<void> updateFoodData() async {
+    if (db == '') await getDatabase();
+    List<TableRow> _recordsTodayTable = [
+      const TableRow(children: [
+        Center(child: Text(' 食品 ')),
+        Center(child: Text(' カロリー ')),
+        Center(child: Text(' プロテイン ')),
+        Center(child: Text(' 脂質 ')),
+        Center(child: Text(' 炭水化物 ')),
+      ])
+    ];
+
+    List<Map> recordsToday = await db.rawQuery(
+        'SELECT * FROM `food_records` WHERE `time` LIKE "${DateTime.now().year} ${DateTime.now().month} ${DateTime.now().day}%"');
+    for (var i in recordsToday) {
+      List<Widget> children = [
+        // Center(child: Text(' ${timeDisAssemble(i["time"])['hour:minute']} ', textScaleFactor: 1.1)),
+        if (i["name"].toString().length <= 8)
+          Center(
+              child: Text(' ${i["name"].toString().substring(0, min(8, i["name"].toString().length))} ',
+                  textScaleFactor: 1.1))
+        else
+          Center(
+              child: Text(' ${i["name"].toString().substring(0, min(7, i["name"].toString().length))}… ',
+                  textScaleFactor: 1.1)),
+        Center(child: Text(' ${double.parse(i["calorie"]).toStringAsFixed(1)} ', textScaleFactor: 1.1)),
+        Center(child: Text(' ${i["protein"]} ', textScaleFactor: 1.1)),
+        Center(child: Text(' ${i["fat"]} ', textScaleFactor: 1.1)),
+        Center(child: Text(' ${i["carb"]} ', textScaleFactor: 1.1)),
+      ];
+      _recordsTodayTable.add(TableRow(
+        children: children,
+      ));
+    }
+    setState(() => foodRecordsTodayTable = _recordsTodayTable);
+    calorieToday = 0;
+    for (var i in recordsToday) {
+      calorieToday += double.parse(i['calorie'].toString());
     }
   }
 
@@ -419,7 +462,7 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                         'INSERT INTO `exercise_records` (`time`, `exercise`, `weight`, `rep`, `set`) VALUES("$now", "$exercise", "${weight.toStringAsFixed(1)}", "$rep", "$set")');
                     db.rawQuery(
                         'UPDATE `exercise` SET `used_time` = `used_time` + 1 WHERE `name` = "$exercise"');
-                    updateData();
+                    updateExerciseData();
                     showSimpleNotification(
                       const Text("保存しました！", style: TextStyle(color: Colors.white)),
                       background: Colors.green,
@@ -738,7 +781,7 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
       return foodList.map((val) => MySelectionItem(title: val['name'])).toList();
     }
 
-    String _food = '';
+    String _food = foodList[0]['name'];
     double _amount = 0;
     return showDialog(
         context: context,
@@ -785,6 +828,7 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                             height: 30,
                             margin: const EdgeInsets.only(top: 10, bottom: 10),
                             child: TextFormField(
+                              keyboardType: TextInputType.number,
                               initialValue: _amount.toStringAsFixed(1),
                               textAlign: TextAlign.center,
                               maxLines: 1,
@@ -837,10 +881,23 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                     audioPlayer.play('hero_simple-celebration-01.wav', volume: volume);
                     String now =
                         "${DateTime.now().year} ${DateTime.now().month} ${DateTime.now().day} ${DateTime.now().hour} ${DateTime.now().minute}";
-                    db.rawQuery(
-                        'INSERT INTO `food_records` (`time`, `exercise`, `weight`, `rep`, `set`) VALUES("$now", "$exercise", "${weight.toStringAsFixed(1)}", "$rep", "$set")');
+                    for (var i in foodList) {
+                      if (i['name'] == _food) {
+                        print(i);
+                        db.rawQuery('''
+                            INSERT INTO `food_records` 
+                            (`time`, `name`, `amount`, `calorie`, `protein`, `fat`, `carb`, `group`) 
+                            VALUES("$now", "${i['name']}", "$_amount", 
+                            "${double.parse(i['calorie']) * _amount / 100}",
+                            "${double.parse(i['protein']) * _amount / 100}",
+                            "${double.parse(i['fat']) * _amount / 100}",
+                            "${double.parse(i['carb']) * _amount / 100}",
+                            "${i['group']}")''');
+                        break;
+                      }
+                    }
                     db.rawQuery('UPDATE `food` SET `used_time` = `used_time` + 1 WHERE `name` = "$_food"');
-                    updateData();
+                    updateFoodData();
                     showSimpleNotification(
                       const Text("保存しました！", style: TextStyle(color: Colors.white)),
                       background: Colors.green,
@@ -1076,6 +1133,7 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                             height: 30,
                             margin: const EdgeInsets.only(top: 10, bottom: 10),
                             child: TextFormField(
+                              keyboardType: TextInputType.number,
                               initialValue: _protein.toStringAsFixed(1),
                               textAlign: TextAlign.center,
                               maxLines: 1,
@@ -1109,6 +1167,7 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                             height: 30,
                             margin: const EdgeInsets.only(top: 10, bottom: 10),
                             child: TextFormField(
+                              keyboardType: TextInputType.number,
                               initialValue: _fat.toStringAsFixed(1),
                               textAlign: TextAlign.center,
                               maxLines: 1,
@@ -1142,6 +1201,7 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                             height: 30,
                             margin: const EdgeInsets.only(top: 10, bottom: 10),
                             child: TextFormField(
+                              keyboardType: TextInputType.number,
                               initialValue: _carb.toStringAsFixed(1),
                               textAlign: TextAlign.center,
                               maxLines: 1,

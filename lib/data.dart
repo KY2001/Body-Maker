@@ -6,7 +6,8 @@ String dbName = "/training_memo.db";
 AudioCache audioPlayer = AudioCache(prefix: 'assets/sounds/');
 dynamic db = '';
 double volume = 1.0;
-List<TableRow> recordsTodayTable = [];
+List<TableRow> exerciseRecordsTodayTable = [];
+List<TableRow> foodRecordsTodayTable = [];
 List<Map<String, dynamic>> exerciseList = [
   {'used_time': 0, 'name': 'ベンチプレス', 'group': 'フリーウェイト(胸)'}
 ];
@@ -17,7 +18,7 @@ List<Map<String, dynamic>> foodList = [
     'calorie': '100',
     'protein': '8.4',
     'fat': '4.9',
-    'carbohydrate': '7.4',
+    'carb': '7.4',
     'group': '既製品'
   }
 ];
@@ -34,6 +35,7 @@ double minRep = 1;
 double maxRep = 20;
 double minSet = 1;
 double maxSet = 10;
+double calorieToday = 0;
 
 Map<String, List<Map<String, dynamic>>> exerciseSearchList = {
   'chest': [
