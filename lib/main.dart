@@ -4,6 +4,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'screen/main_page.dart';
 import 'screen/options.dart';
 import 'screen/add_exercise.dart';
+import 'screen/add_food.dart';
 
 void main() {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -32,6 +33,7 @@ class MyApp extends StatelessWidget {
             '/home': (BuildContext context) => const MainPage(),
             '/optionalPage': (BuildContext context) => const OptionalPage(),
             '/addExercisePage': (BuildContext context) => const AddExercisePage(),
+            '/addFoodPage': (BuildContext context) => const AddFoodPage(),
           },
         ));
   }

@@ -15,22 +15,23 @@ Future<void> initDatabase() async {
   await db.rawQuery('DROP TABLE IF EXISTS `records`');
   await db.rawQuery('DROP TABLE IF EXISTS `options`');
   await db.rawQuery('DROP TABLE IF EXISTS `exercise`');
+  await db.rawQuery('DROP TABLE IF EXISTS `food`');
   await db.rawQuery(''' 
   CREATE TABLE IF NOT EXISTS `exercise_records` (
   `id` INTEGER PRIMARY KEY AUTOINCREMENT,
-  `time` TEXT,
-  `exercise` TEXT,
-  `weight` TEXT,
-  `rep` TEXT,
-  `set` TEXT
+  `time` TEXT NOT NULL,
+  `exercise` TEXT NOT NULL,
+  `weight` TEXT NOT NULL,
+  `rep` TEXT NOT NULL,
+  `set` TEXT NOT NULL
    )
   ''');
   await db.rawQuery('''
   CREATE TABLE IF NOT EXISTS `exercise` (
    `id` INTEGER PRIMARY KEY AUTOINCREMENT,
-   `name` TEXT UNIQUE,
-   `group` TEXT,
-   `used_time` INTEGER
+   `name` TEXT UNIQUE NOT NULL,
+   `group` TEXT NOT NULL,
+   `used_time` INTEGER NOT NULL
    )
    ''');
   await db.rawQuery('''
@@ -52,21 +53,26 @@ Future<void> initDatabase() async {
   await db.rawQuery(''' 
   CREATE TABLE IF NOT EXISTS `food_records` (
   `id` INTEGER PRIMARY KEY AUTOINCREMENT,
-  `time` TEXT,
-  `food` TEXT,
-  `amount` TEXT
+  `time` TEXT NOT NULL,
+  `food` TEXT NOT NULL,
+  `amount` TEXT NOT NULL
+  `calorie` TEXT NOT NULL,
+  `protein` TEXT NOT NULL,
+  `fat` TEXT NOT NULL,
+  `carb` TEXT NOT NULL,
+  `group` TEXT NOT NULL
    )
   ''');
   await db.rawQuery('''
   CREATE TABLE IF NOT EXISTS `food` (
    `id` INTEGER PRIMARY KEY AUTOINCREMENT,
-   `name` TEXT UNIQUE,
-   `calorie` TEXT,
-   `protein` TEXT,
-   `fat` TEXT,
-   `carbohydrate` TEXT,
-   `group` TEXT,
-   `used_time` INTEGER
+   `name` TEXT UNIQUE NOT NULL,
+   `calorie` TEXT NOT NULL,
+   `protein` TEXT NOT NULL,
+   `fat` TEXT NOT NULL,
+   `carb` TEXT NOT NULL,
+   `group` TEXT NOT NULL,
+   `used_time` INTEGER NOT NULL
    )
    ''');
   await db.rawQuery('''

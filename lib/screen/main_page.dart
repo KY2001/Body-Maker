@@ -84,14 +84,12 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                             defaultColumnWidth: const IntrinsicColumnWidth(),
                             children: recordsTodayTable),
                       ),
-                      Text.rich(TextSpan(
-                        style: const TextStyle(fontSize: 21),
+                      const Text.rich(TextSpan(
+                        style: TextStyle(fontSize: 21),
                         children: [
-                          const TextSpan(text: "消費カロリー: "),
-                          TextSpan(
-                              text: "${scoreToday.toInt()}",
-                              style: const TextStyle(fontWeight: FontWeight.bold)),
-                          const TextSpan(text: " [kcal]"),
+                          TextSpan(text: "消費カロリー: "),
+                          TextSpan(text: "to do", style: TextStyle(fontWeight: FontWeight.bold)),
+                          TextSpan(text: " [kcal]"),
                         ],
                       )),
                       Text.rich(TextSpan(
@@ -162,7 +160,7 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                             backgroundColor: Colors.green,
                             isExtended: true,
                             label: const Text(
-                              '食事の編集',
+                              '種目の編集',
                               style: TextStyle(
                                 fontSize: 16,
                               ),
@@ -177,7 +175,7 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                         heroTag: "hero2",
                         onPressed: () {
                           audioPlayer.play('ui_tap-variant-01.wav', volume: volume);
-                          displayAddRecordPopup(context);
+                          displayAddExerciseRecordPopup(context);
                         },
                         enableFeedback: false,
                         foregroundColor: Colors.white,
@@ -210,7 +208,7 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                             backgroundColor: Colors.green,
                             isExtended: true,
                             label: const Text(
-                              '種目の編集',
+                              '食事の編集',
                               style: TextStyle(
                                 fontSize: 16,
                               ),
@@ -225,7 +223,7 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                         heroTag: "hero2",
                         onPressed: () {
                           audioPlayer.play('ui_tap-variant-01.wav', volume: volume);
-                          displayAddRecordPopup(context);
+                          displayAddFoodRecordPopup(context);
                         },
                         enableFeedback: false,
                         foregroundColor: Colors.white,
@@ -287,7 +285,7 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
     }
   }
 
-  Future<void> displayAddRecordPopup(BuildContext context) async {
+  Future<void> displayAddExerciseRecordPopup(BuildContext context) async {
     List<Widget> buildItems() {
       return exerciseList.map((val) => MySelectionItem(title: val['name'])).toList();
     }
@@ -628,7 +626,7 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                                 _exercise = value;
                               },
                               decoration: InputDecoration(
-                                hintText: "入力して下さい！",
+                                hintText: "入力して下さい",
                                 // fillColor: Colors.green[100],
                                 filled: true,
                                 focusedBorder: OutlineInputBorder(
@@ -735,6 +733,131 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
         });
   }
 
+  Future<void> displayAddFoodRecordPopup(BuildContext context) async {
+    List<Widget> buildItems() {
+      return foodList.map((val) => MySelectionItem(title: val['name'])).toList();
+    }
+
+    String _food = '';
+    double _amount = 0;
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(builder: (context, setState) {
+            return AlertDialog(
+              content: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    const Text('食品'),
+                    Container(
+                        alignment: Alignment.center,
+                        //width: 180,
+                        //height: 30,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.blue),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        margin: const EdgeInsets.only(top: 10, bottom: 10),
+                        child: DirectSelect(
+                          itemExtent: 35.0,
+                          selectedIndex: selectedIndex!,
+                          child: MySelectionItem(
+                            isForList: true,
+                            title: foodList[selectedIndex!]['name'],
+                          ),
+                          onSelectedItemChanged: (index) {
+                            _food = foodList[index!]['name'];
+                            setState(() {
+                              selectedIndex = index;
+                            });
+                          },
+                          mode: DirectSelectMode.tap,
+                          items: buildItems(),
+                          backgroundColor: Colors.black,
+                          selectionColor: Colors.white12,
+                        )),
+                    const Text('摂取量'),
+                    Center(
+                        child: Container(
+                            alignment: Alignment.center,
+                            width: 180,
+                            height: 30,
+                            margin: const EdgeInsets.only(top: 10, bottom: 10),
+                            child: TextFormField(
+                              initialValue: _amount.toStringAsFixed(1),
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              onChanged: (value) {
+                                _amount = double.parse(value);
+                              },
+                              decoration: InputDecoration(
+                                suffix: const Text('[g]'),
+                                filled: true,
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: const BorderSide(
+                                    color: Colors.red,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: const BorderSide(
+                                    color: Colors.blue,
+                                    width: 1.0,
+                                  ),
+                                ),
+                              ),
+                            ))),
+                  ]),
+              actions: <Widget>[
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.red, // 背景
+                    onPrimary: Colors.white, // 文字色
+                    enableFeedback: false,
+                  ),
+                  child: const Text('キャンセル'),
+                  onPressed: () {
+                    audioPlayer.play('navigation_backward-selection.wav', volume: volume);
+                    setState(() {
+                      Navigator.pop(context);
+                    });
+                  },
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.green, // 背景
+                    onPrimary: Colors.white, // 文字色
+                    enableFeedback: false, // タッチ音をオフ
+                  ),
+                  child: const Text('保存'),
+                  onPressed: () {
+                    audioPlayer.play('hero_simple-celebration-01.wav', volume: volume);
+                    String now =
+                        "${DateTime.now().year} ${DateTime.now().month} ${DateTime.now().day} ${DateTime.now().hour} ${DateTime.now().minute}";
+                    db.rawQuery(
+                        'INSERT INTO `food_records` (`time`, `exercise`, `weight`, `rep`, `set`) VALUES("$now", "$exercise", "${weight.toStringAsFixed(1)}", "$rep", "$set")');
+                    db.rawQuery('UPDATE `food` SET `used_time` = `used_time` + 1 WHERE `name` = "$_food"');
+                    updateData();
+                    showSimpleNotification(
+                      const Text("保存しました！", style: TextStyle(color: Colors.white)),
+                      background: Colors.green,
+                      position: NotificationPosition.bottom,
+                      slideDismissDirection: DismissDirection.down,
+                    );
+                    setState(() {
+                      Navigator.pop(context);
+                    });
+                  },
+                ),
+              ],
+            );
+          });
+        });
+  }
+
   Future<void> displayEditFoodPopup(BuildContext context) async {
     return showDialog(
         context: context,
@@ -761,7 +884,7 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                               ),
                               onPressed: () {
                                 audioPlayer.play('ui_tap-variant-01.wav', volume: volume);
-                                Navigator.of(context).pushNamed("/addExercisePage");
+                                Navigator.of(context).pushNamed("/addFoodPage");
                               },
                             ))),
                     Center(
@@ -785,91 +908,91 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                             ))),
                     Center(
                         child: Stack(children: <Widget>[
-                          Center(
-                              child: Container(
-                                height: 34,
-                                width: 200,
-                                margin: const EdgeInsets.only(top: 5),
-                                child: Row(mainAxisAlignment: MainAxisAlignment.center, children: const <Widget>[
-                                  Icon(
-                                    Icons.delete,
-                                    color: Colors.white,
-                                  ),
-                                  Text(
-                                    ' 削除する',
-                                    textScaleFactor: 1.1,
-                                    style: TextStyle(color: Colors.white),
-                                  )
-                                ]),
-                                decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius: BorderRadius.circular(4),
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      offset: Offset(0, 0),
-                                      blurRadius: 2,
-                                      spreadRadius: 2,
-                                      color: Colors.black26,
-                                    ),
-                                  ],
-                                ),
-                              )),
-                          Container(
-                              height: 37,
-                              width: 200,
-                              margin: const EdgeInsets.only(top: 3, left: 15),
-                              child: SmartSelect<String>.single(
-                                  title: '',
-                                  placeholder: '',
-                                  value: '',
-                                  onChange: (value) {
-                                    if (value.value != '') {
-                                      for (var i = 0; i < exerciseList.length; i++) {
-                                        if (exerciseList[i]['name'] == value.value) {
-                                          setState(() {
-                                            exerciseList.removeAt(i);
-                                            db.rawQuery('DELETE FROM `exercise` WHERE `name` = "${value.value}"');
-                                          });
-                                          break;
-                                        }
-                                      }
-                                      value.value = '';
-                                      audioPlayer.play('hero_simple-celebration-01.wav', volume: volume);
-                                      showSimpleNotification(
-                                        const Text("削除しました！", style: TextStyle(color: Colors.white)),
-                                        background: Colors.red,
-                                        position: NotificationPosition.bottom,
-                                        slideDismissDirection: DismissDirection.down,
-                                      );
+                      Center(
+                          child: Container(
+                        height: 34,
+                        width: 200,
+                        margin: const EdgeInsets.only(top: 5),
+                        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: const <Widget>[
+                          Icon(
+                            Icons.delete,
+                            color: Colors.white,
+                          ),
+                          Text(
+                            ' 削除する',
+                            textScaleFactor: 1.1,
+                            style: TextStyle(color: Colors.white),
+                          )
+                        ]),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(4),
+                          boxShadow: const [
+                            BoxShadow(
+                              offset: Offset(0, 0),
+                              blurRadius: 2,
+                              spreadRadius: 2,
+                              color: Colors.black26,
+                            ),
+                          ],
+                        ),
+                      )),
+                      Container(
+                          height: 37,
+                          width: 200,
+                          margin: const EdgeInsets.only(top: 3, left: 15),
+                          child: SmartSelect<String>.single(
+                              title: '',
+                              placeholder: '',
+                              value: '',
+                              onChange: (value) {
+                                if (value.value != '') {
+                                  for (var i = 0; i < foodList.length; i++) {
+                                    if (foodList[i]['name'] == value.value) {
+                                      setState(() {
+                                        foodList.removeAt(i);
+                                        db.rawQuery('DELETE FROM `food` WHERE `name` = "${value.value}"');
+                                      });
+                                      break;
                                     }
-                                  },
-                                  choiceItems: S2Choice.listFrom<String, Map>(
-                                    source: exerciseList,
-                                    value: (index, item) => item['name'],
-                                    title: (index, item) => item['name'],
-                                    group: (index, item) => item['group'],
-                                  ),
-                                  modalType: S2ModalType.fullPage,
-                                  choiceGrouped: true,
-                                  modalFilter: true,
-                                  modalFilterAuto: true,
-                                  modalHeaderStyle: S2ModalHeaderStyle(
-                                    backgroundColor: Colors.grey[850],
-                                    textStyle: const TextStyle(color: Colors.white),
-                                    iconTheme: const IconThemeData(color: Colors.white),
-                                    actionsIconTheme: const IconThemeData(color: Colors.white),
-                                  ),
-                                  modalStyle: S2ModalStyle(backgroundColor: Colors.grey[850]),
-                                  choiceStyle: const S2ChoiceStyle(
-                                      titleStyle: TextStyle(color: Colors.white), activeColor: Colors.white),
-                                  tileBuilder: (context, state) {
-                                    return S2Tile.fromState(
-                                      state,
-                                      leading: const Text(''),
-                                      trailing: const Text(''),
-                                    );
-                                  })),
-                        ])),
+                                  }
+                                  value.value = '';
+                                  audioPlayer.play('hero_simple-celebration-01.wav', volume: volume);
+                                  showSimpleNotification(
+                                    const Text("削除しました！", style: TextStyle(color: Colors.white)),
+                                    background: Colors.red,
+                                    position: NotificationPosition.bottom,
+                                    slideDismissDirection: DismissDirection.down,
+                                  );
+                                }
+                              },
+                              choiceItems: S2Choice.listFrom<String, Map>(
+                                source: foodList,
+                                value: (index, item) => item['name'],
+                                title: (index, item) => item['name'],
+                                group: (index, item) => item['group'],
+                              ),
+                              modalType: S2ModalType.fullPage,
+                              choiceGrouped: true,
+                              modalFilter: true,
+                              modalFilterAuto: true,
+                              modalHeaderStyle: S2ModalHeaderStyle(
+                                backgroundColor: Colors.grey[850],
+                                textStyle: const TextStyle(color: Colors.white),
+                                iconTheme: const IconThemeData(color: Colors.white),
+                                actionsIconTheme: const IconThemeData(color: Colors.white),
+                              ),
+                              modalStyle: S2ModalStyle(backgroundColor: Colors.grey[850]),
+                              choiceStyle: const S2ChoiceStyle(
+                                  titleStyle: TextStyle(color: Colors.white), activeColor: Colors.white),
+                              tileBuilder: (context, state) {
+                                return S2Tile.fromState(
+                                  state,
+                                  leading: const Text(''),
+                                  trailing: const Text(''),
+                                );
+                              })),
+                    ])),
                   ]),
               actions: <Widget>[
                 ElevatedButton(
@@ -894,6 +1017,9 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
 
   Future<void> displayManualAddFoodPopup(BuildContext context) async {
     String _food = '';
+    double _protein = 0;
+    double _fat = 0;
+    double _carb = 0;
     int? selectedIndex2 = 0;
     String _group = foodGroupCandidate[selectedIndex2];
     List<Widget> buildItems() {
@@ -913,8 +1039,8 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                     Center(
                         child: Container(
                             alignment: Alignment.center,
-                            //width: 180,
-                            //height: 30,
+                            width: 180,
+                            height: 30,
                             margin: const EdgeInsets.only(top: 10, bottom: 10),
                             child: TextFormField(
                               initialValue: '',
@@ -924,8 +1050,106 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                                 _food = value;
                               },
                               decoration: InputDecoration(
-                                hintText: "入力して下さい！",
                                 // fillColor: Colors.green[100],
+                                filled: true,
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: const BorderSide(
+                                    color: Colors.red,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: const BorderSide(
+                                    color: Colors.blue,
+                                    width: 1.0,
+                                  ),
+                                ),
+                              ),
+                            ))),
+                    const Text('タンパク質の含有量/100g'),
+                    Center(
+                        child: Container(
+                            alignment: Alignment.center,
+                            width: 180,
+                            height: 30,
+                            margin: const EdgeInsets.only(top: 10, bottom: 10),
+                            child: TextFormField(
+                              initialValue: _protein.toStringAsFixed(1),
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              onChanged: (value) {
+                                _protein = double.parse(value);
+                              },
+                              decoration: InputDecoration(
+                                suffix: const Text('[g]'),
+                                filled: true,
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: const BorderSide(
+                                    color: Colors.red,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: const BorderSide(
+                                    color: Colors.blue,
+                                    width: 1.0,
+                                  ),
+                                ),
+                              ),
+                            ))),
+                    const Text('脂質の含有量/100g'),
+                    Center(
+                        child: Container(
+                            alignment: Alignment.center,
+                            width: 180,
+                            height: 30,
+                            margin: const EdgeInsets.only(top: 10, bottom: 10),
+                            child: TextFormField(
+                              initialValue: _fat.toStringAsFixed(1),
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              onChanged: (value) {
+                                _fat = double.parse(value);
+                              },
+                              decoration: InputDecoration(
+                                suffix: const Text('[g]'),
+                                filled: true,
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: const BorderSide(
+                                    color: Colors.red,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: const BorderSide(
+                                    color: Colors.blue,
+                                    width: 1.0,
+                                  ),
+                                ),
+                              ),
+                            ))),
+                    const Text('炭水化物の含有量/100g'),
+                    Center(
+                        child: Container(
+                            alignment: Alignment.center,
+                            width: 180,
+                            height: 30,
+                            margin: const EdgeInsets.only(top: 10, bottom: 10),
+                            child: TextFormField(
+                              initialValue: _carb.toStringAsFixed(1),
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              onChanged: (value) {
+                                _carb = double.parse(value);
+                              },
+                              decoration: InputDecoration(
+                                suffix: const Text('[g]'),
                                 filled: true,
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
