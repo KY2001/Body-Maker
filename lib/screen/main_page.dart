@@ -288,6 +288,7 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
   }
 
   Future<void> updateFoodData() async {
+    print("updateFoodData is called");
     if (db == '') await getDatabase();
     List<TableRow> _recordsTodayTable = [
       const TableRow(children: [
@@ -783,6 +784,8 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
 
     String _food = foodList[0]['name'];
     double _amount = 0;
+    int? selectedIndex3 = 0;
+
     return showDialog(
         context: context,
         builder: (context) {
@@ -804,15 +807,15 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                         margin: const EdgeInsets.only(top: 10, bottom: 10),
                         child: DirectSelect(
                           itemExtent: 35.0,
-                          selectedIndex: selectedIndex!,
+                          selectedIndex: selectedIndex3!,
                           child: MySelectionItem(
                             isForList: true,
-                            title: foodList[selectedIndex!]['name'],
+                            title: foodList[selectedIndex3!]['name'],
                           ),
                           onSelectedItemChanged: (index) {
                             _food = foodList[index!]['name'];
                             setState(() {
-                              selectedIndex = index;
+                              selectedIndex3 = index;
                             });
                           },
                           mode: DirectSelectMode.tap,
@@ -884,7 +887,8 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                     for (var i in foodList) {
                       if (i['name'] == _food) {
                         print(i);
-                        db.rawQuery('''
+                        Future(() async {
+                          await db.rawQuery('''
                             INSERT INTO `food_records` 
                             (`time`, `name`, `amount`, `calorie`, `protein`, `fat`, `carb`, `group`) 
                             VALUES("$now", "${i['name']}", "$_amount", 
@@ -893,6 +897,8 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                             "${double.parse(i['fat']) * _amount / 100}",
                             "${double.parse(i['carb']) * _amount / 100}",
                             "${i['group']}")''');
+                        });
+                        print("rawQuery end!!");
                         break;
                       }
                     }
@@ -1074,6 +1080,7 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
 
   Future<void> displayManualAddFoodPopup(BuildContext context) async {
     String _food = '';
+    double _calorie = 0;
     double _protein = 0;
     double _fat = 0;
     double _carb = 0;
@@ -1108,6 +1115,40 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                               },
                               decoration: InputDecoration(
                                 // fillColor: Colors.green[100],
+                                filled: true,
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: const BorderSide(
+                                    color: Colors.red,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: const BorderSide(
+                                    color: Colors.blue,
+                                    width: 1.0,
+                                  ),
+                                ),
+                              ),
+                            ))),
+                    const Text('カロリー/100g'),
+                    Center(
+                        child: Container(
+                            alignment: Alignment.center,
+                            width: 180,
+                            height: 30,
+                            margin: const EdgeInsets.only(top: 10, bottom: 10),
+                            child: TextFormField(
+                              keyboardType: TextInputType.number,
+                              initialValue: _calorie.toStringAsFixed(1),
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              onChanged: (value) {
+                                _calorie = double.parse(value);
+                              },
+                              decoration: InputDecoration(
+                                suffix: const Text('[kcal]'),
                                 filled: true,
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
@@ -1285,9 +1326,17 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                     }
                     if (yes) {
                       setState(() {
-                        foodList.add({'used_time': 0, 'name': _food, 'group': _group});
+                        foodList.add({
+                          'used_time': "0",
+                          'name': _food.toString(),
+                          'group': _group.toString(),
+                          'calorie': _calorie.toString(),
+                          'protein': _protein.toString(),
+                          'fat': _fat.toString(),
+                          'carb': _carb.toString()
+                        });
                         db.rawQuery(
-                            'INSERT INTO `food` (`name`, `group`, `used_time`) SELECT "$_food", "$_group", "0"');
+                            'INSERT INTO `food` (`name`, `group`, `used_time`, `calorie`, `protein`, `fat`, `carb`) SELECT "$_food", "$_group", "0", "$_calorie", "$_protein", "$_fat", "$_carb"');
                       });
                       audioPlayer.play('hero_simple-celebration-01.wav', volume: volume);
                       showSimpleNotification(

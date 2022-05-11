@@ -13,7 +13,7 @@ List<Map<String, dynamic>> exerciseList = [
 ];
 List<Map<String, dynamic>> foodList = [
   {
-    'used_time': 0,
+    'used_time': '0',
     'name': '納豆',
     'calorie': '100',
     'protein': '8.4',
