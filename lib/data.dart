@@ -11,18 +11,9 @@ List<TableRow> foodRecordsTodayTable = [];
 List<Map<String, dynamic>> exerciseList = [
   {'used_time': 0, 'name': 'ベンチプレス', 'group': 'フリーウェイト(胸)'}
 ];
-List<Map<String, dynamic>> foodList = [
-  {
-    'used_time': '0',
-    'name': '納豆',
-    'calorie': '100',
-    'protein': '8.4',
-    'fat': '4.9',
-    'carb': '7.4',
-    'group': '既製品'
-  }
-];
+List<Map<String, dynamic>> foodList = [];
 int? selectedIndex = 0;
+int selectedIndex3 = 0;
 String exercise = 'ベンチプレス';
 double weight = 45;
 int rep = 10;
@@ -36,6 +27,7 @@ double maxRep = 20;
 double minSet = 1;
 double maxSet = 10;
 double calorieToday = 0;
+List<int> pfcBalance = [0, 0, 0];
 
 Map<String, List<Map<String, dynamic>>> exerciseSearchList = {
   'chest': [
@@ -247,13 +239,7 @@ Map<String, List<Map<String, dynamic>>> foodSearchList = {
     {'name': 'こむぎ ［パン類］ 全粒粉パン', 'calorie': '251', 'protein': '7.9', 'fat': '5.7', 'carb': '45.5'},
     {'name': 'こむぎ ［パン類］ ぶどうパン', 'calorie': '263', 'protein': '8.2', 'fat': '3.5', 'carb': '51.1'},
     {'name': 'こむぎ ［パン類］ ロールパン', 'calorie': '309', 'protein': '10.1', 'fat': '9.0', 'carb': '48.6'},
-    {
-      'name': 'こむぎ ［パン類］ クロワッサン レギュラータイプ',
-      'calorie': '406',
-      'protein': '6.5',
-      'fat': '20.4',
-      'carb': '51.5'
-    },
+    {'name': 'こむぎ ［パン類］ クロワッサン レギュラータイプ', 'calorie': '406', 'protein': '6.5', 'fat': '20.4', 'carb': '51.5'},
     {'name': 'こむぎ ［パン類］ クロワッサン リッチタイプ', 'calorie': '438', 'protein': '7.9', 'fat': '26.8', 'carb': '43.9'},
     {'name': 'こむぎ ［パン類］ くるみパン', 'calorie': '292', 'protein': '8.2', 'fat': '12.6', 'carb': '38.7'},
     {'name': 'こむぎ ［パン類］ イングリッシュマフィン', 'calorie': '224', 'protein': '8.1', 'fat': '3.6', 'carb': '40.8'},
@@ -261,13 +247,7 @@ Map<String, List<Map<String, dynamic>>> foodSearchList = {
     {'name': 'こむぎ ［パン類］ ベーグル', 'calorie': '270', 'protein': '9.6', 'fat': '2.0', 'carb': '54.6'},
     {'name': 'こむぎ ［うどん・そうめん類］ うどん 生', 'calorie': '249', 'protein': '6.1', 'fat': '0.6', 'carb': '56.8'},
     {'name': 'こむぎ ［うどん・そうめん類］ うどん ゆで', 'calorie': '95', 'protein': '2.6', 'fat': '0.4', 'carb': '21.6'},
-    {
-      'name': 'こむぎ ［うどん・そうめん類］ うどん 半生うどん',
-      'calorie': '296',
-      'protein': '7.8',
-      'fat': '3.4',
-      'carb': '62.5'
-    },
+    {'name': 'こむぎ ［うどん・そうめん類］ うどん 半生うどん', 'calorie': '296', 'protein': '7.8', 'fat': '3.4', 'carb': '62.5'},
     {'name': 'こむぎ ［うどん・そうめん類］ 干しうどん 乾', 'calorie': '333', 'protein': '8.5', 'fat': '1.1', 'carb': '71.9'},
     {'name': 'こむぎ ［うどん・そうめん類］ 干しうどん ゆで', 'calorie': '117', 'protein': '3.1', 'fat': '0.5', 'carb': '25.8'},
     {'name': 'こむぎ ［うどん・そうめん類］ そうめん・ひやむぎ 乾', 'calorie': '333', 'protein': '9.5', 'fat': '1.1', 'carb': '72.7'},
@@ -550,13 +530,7 @@ Map<String, List<Map<String, dynamic>>> foodSearchList = {
     {'name': 'こめ ［うるち米製品］ 玄米粉', 'calorie': '370', 'protein': '7.1', 'fat': '2.9', 'carb': '84.1'},
     {'name': 'こめ ［うるち米製品］ 米粉', 'calorie': '356', 'protein': '6.0', 'fat': '0.7', 'carb': '81.9'},
     {'name': 'こめ ［うるち米製品］ 米粉パン 食パン', 'calorie': '247', 'protein': '10.7', 'fat': '5.1', 'carb': '41.6'},
-    {
-      'name': 'こめ ［うるち米製品］ 米粉パン ロールパン',
-      'calorie': '256',
-      'protein': '8.8',
-      'fat': '6.7',
-      'carb': '42.0'
-    },
+    {'name': 'こめ ［うるち米製品］ 米粉パン ロールパン', 'calorie': '256', 'protein': '8.8', 'fat': '6.7', 'carb': '42.0'},
     {
       'name': 'こめ ［うるち米製品］ 米粉パン 小麦グルテン不使用のもの',
       'calorie': '247',
@@ -1585,13 +1559,7 @@ Map<String, List<Map<String, dynamic>>> foodSearchList = {
       'fat': '0.1',
       'carb': '9.9'
     },
-    {
-      'name': '（かんきつ類） うんしゅうみかん 果実飲料 果粒入りジュース',
-      'calorie': '53',
-      'protein': '0.2',
-      'fat': '0',
-      'carb': '13.0'
-    },
+    {'name': '（かんきつ類） うんしゅうみかん 果実飲料 果粒入りジュース', 'calorie': '53', 'protein': '0.2', 'fat': '0', 'carb': '13.0'},
     {
       'name': '（かんきつ類） うんしゅうみかん 果実飲料 50%果汁入り飲料',
       'calorie': '59',
@@ -1681,23 +1649,11 @@ Map<String, List<Map<String, dynamic>>> foodSearchList = {
       'fat': '0',
       'carb': '11.1'
     },
-    {
-      'name': '（かんきつ類） グレープフルーツ 果実飲料 20%果汁入り飲料',
-      'calorie': '39',
-      'protein': '0.1',
-      'fat': '0',
-      'carb': '9.7'
-    },
+    {'name': '（かんきつ類） グレープフルーツ 果実飲料 20%果汁入り飲料', 'calorie': '39', 'protein': '0.1', 'fat': '0', 'carb': '9.7'},
     {'name': '（かんきつ類） グレープフルーツ 缶詰', 'calorie': '60', 'protein': '0.5', 'fat': '0', 'carb': '17.1'},
     {'name': '（かんきつ類） さんぼうかん 砂じょう 生', 'calorie': '47', 'protein': '0.7', 'fat': '0.3', 'carb': '10.9'},
     {'name': '（かんきつ類） シークヮーサー 果汁 生', 'calorie': '35', 'protein': '0.8', 'fat': '0.1', 'carb': '7.9'},
-    {
-      'name': '（かんきつ類） シークヮーサー 果実飲料 10%果汁入り飲料',
-      'calorie': '48',
-      'protein': '0.1',
-      'fat': '0',
-      'carb': '11.8'
-    },
+    {'name': '（かんきつ類） シークヮーサー 果実飲料 10%果汁入り飲料', 'calorie': '48', 'protein': '0.1', 'fat': '0', 'carb': '11.8'},
     {'name': '（かんきつ類） しらぬひ 砂じょう 生', 'calorie': '56', 'protein': '0.8', 'fat': '0.2', 'carb': '12.9'},
     {'name': '（かんきつ類） すだち 果皮 生', 'calorie': '55', 'protein': '1.8', 'fat': '0.3', 'carb': '16.4'},
     {'name': '（かんきつ類） すだち 果汁 生', 'calorie': '29', 'protein': '0.5', 'fat': '0.1', 'carb': '6.6'},
@@ -3799,20 +3755,8 @@ Map<String, List<Map<String, dynamic>>> foodSearchList = {
     {'name': '＜和生菓子・和半生菓子類＞ 甘納豆 あずき', 'calorie': '283', 'protein': '3.4', 'fat': '0.3', 'carb': '69.5'},
     {'name': '＜和生菓子・和半生菓子類＞ 甘納豆 いんげんまめ', 'calorie': '288', 'protein': '3.8', 'fat': '0.5', 'carb': '69.9'},
     {'name': '＜和生菓子・和半生菓子類＞ 甘納豆 えんどう', 'calorie': '293', 'protein': '3.8', 'fat': '0.4', 'carb': '72.2'},
-    {
-      'name': '＜和生菓子・和半生菓子類＞ 今川焼 こしあん入り',
-      'calorie': '217',
-      'protein': '4.5',
-      'fat': '1.1',
-      'carb': '48.3'
-    },
-    {
-      'name': '＜和生菓子・和半生菓子類＞ 今川焼 つぶしあん入り',
-      'calorie': '220',
-      'protein': '4.5',
-      'fat': '1.4',
-      'carb': '48.2'
-    },
+    {'name': '＜和生菓子・和半生菓子類＞ 今川焼 こしあん入り', 'calorie': '217', 'protein': '4.5', 'fat': '1.1', 'carb': '48.3'},
+    {'name': '＜和生菓子・和半生菓子類＞ 今川焼 つぶしあん入り', 'calorie': '220', 'protein': '4.5', 'fat': '1.4', 'carb': '48.2'},
     {
       'name': '＜和生菓子・和半生菓子類＞ 今川焼 カスタードクリーム入り',
       'calorie': '224',
@@ -3822,13 +3766,7 @@ Map<String, List<Map<String, dynamic>>> foodSearchList = {
     },
     {'name': '＜和生菓子・和半生菓子類＞ ういろう 白', 'calorie': '181', 'protein': '1.0', 'fat': '0.2', 'carb': '44.2'},
     {'name': '＜和生菓子・和半生菓子類＞ ういろう 黒', 'calorie': '174', 'protein': '1.5', 'fat': '0.2', 'carb': '42.7'},
-    {
-      'name': '＜和生菓子・和半生菓子類＞ うぐいすもち こしあん入り',
-      'calorie': '236',
-      'protein': '3.5',
-      'fat': '0.4',
-      'carb': '55.8'
-    },
+    {'name': '＜和生菓子・和半生菓子類＞ うぐいすもち こしあん入り', 'calorie': '236', 'protein': '3.5', 'fat': '0.4', 'carb': '55.8'},
     {
       'name': '＜和生菓子・和半生菓子類＞ うぐいすもち つぶしあん入り',
       'calorie': '237',
@@ -3836,20 +3774,8 @@ Map<String, List<Map<String, dynamic>>> foodSearchList = {
       'fat': '0.4',
       'carb': '56.8'
     },
-    {
-      'name': '＜和生菓子・和半生菓子類＞ かしわもち こしあん入り',
-      'calorie': '203',
-      'protein': '4.0',
-      'fat': '0.4',
-      'carb': '46.7'
-    },
-    {
-      'name': '＜和生菓子・和半生菓子類＞ かしわもち つぶしあん入り',
-      'calorie': '204',
-      'protein': '3.9',
-      'fat': '0.5',
-      'carb': '46.6'
-    },
+    {'name': '＜和生菓子・和半生菓子類＞ かしわもち こしあん入り', 'calorie': '203', 'protein': '4.0', 'fat': '0.4', 'carb': '46.7'},
+    {'name': '＜和生菓子・和半生菓子類＞ かしわもち つぶしあん入り', 'calorie': '204', 'protein': '3.9', 'fat': '0.5', 'carb': '46.6'},
     {'name': '＜和生菓子・和半生菓子類＞ カステラ', 'calorie': '313', 'protein': '7.1', 'fat': '5.0', 'carb': '61.8'},
     {'name': '＜和生菓子・和半生菓子類＞ かのこ', 'calorie': '260', 'protein': '4.8', 'fat': '0.4', 'carb': '60.4'},
     {'name': '＜和生菓子・和半生菓子類＞ かるかん', 'calorie': '226', 'protein': '2.1', 'fat': '0.3', 'carb': '54.8'},
@@ -3858,20 +3784,8 @@ Map<String, List<Map<String, dynamic>>> foodSearchList = {
     {'name': '＜和生菓子・和半生菓子類＞ きりざんしょ', 'calorie': '245', 'protein': '2.1', 'fat': '0.3', 'carb': '59.3'},
     {'name': '＜和生菓子・和半生菓子類＞ きんぎょく糖', 'calorie': '282', 'protein': 'Tr', 'fat': '0', 'carb': '71.9'},
     {'name': '＜和生菓子・和半生菓子類＞ きんつば', 'calorie': '260', 'protein': '6.0', 'fat': '0.7', 'carb': '58.6'},
-    {
-      'name': '＜和生菓子・和半生菓子類＞ 草もち こしあん入り',
-      'calorie': '224',
-      'protein': '4.2',
-      'fat': '0.4',
-      'carb': '52.1'
-    },
-    {
-      'name': '＜和生菓子・和半生菓子類＞ 草もち つぶしあん入り',
-      'calorie': '227',
-      'protein': '4.8',
-      'fat': '0.7',
-      'carb': '51.1'
-    },
+    {'name': '＜和生菓子・和半生菓子類＞ 草もち こしあん入り', 'calorie': '224', 'protein': '4.2', 'fat': '0.4', 'carb': '52.1'},
+    {'name': '＜和生菓子・和半生菓子類＞ 草もち つぶしあん入り', 'calorie': '227', 'protein': '4.8', 'fat': '0.7', 'carb': '51.1'},
     {
       'name': '＜和生菓子・和半生菓子類＞ くし団子 あん こしあん入り',
       'calorie': '198',
@@ -3886,13 +3800,7 @@ Map<String, List<Map<String, dynamic>>> foodSearchList = {
       'fat': '0.5',
       'carb': '45.4'
     },
-    {
-      'name': '＜和生菓子・和半生菓子類＞ くし団子 みたらし',
-      'calorie': '194',
-      'protein': '3.2',
-      'fat': '0.4',
-      'carb': '44.9'
-    },
+    {'name': '＜和生菓子・和半生菓子類＞ くし団子 みたらし', 'calorie': '194', 'protein': '3.2', 'fat': '0.4', 'carb': '44.9'},
     {
       'name': '＜和生菓子・和半生菓子類＞ くずもち 関西風 くずでん粉製品',
       'calorie': '93',
@@ -3937,59 +3845,17 @@ Map<String, List<Map<String, dynamic>>> foodSearchList = {
       'fat': '0.6',
       'carb': '54.4'
     },
-    {
-      'name': '＜和生菓子・和半生菓子類＞ 笹だんご こしあん入り',
-      'calorie': '227',
-      'protein': '4.0',
-      'fat': '0.5',
-      'carb': '54.6'
-    },
-    {
-      'name': '＜和生菓子・和半生菓子類＞ 笹だんご つぶしあん入り',
-      'calorie': '228',
-      'protein': '4.7',
-      'fat': '0.6',
-      'carb': '53.8'
-    },
+    {'name': '＜和生菓子・和半生菓子類＞ 笹だんご こしあん入り', 'calorie': '227', 'protein': '4.0', 'fat': '0.5', 'carb': '54.6'},
+    {'name': '＜和生菓子・和半生菓子類＞ 笹だんご つぶしあん入り', 'calorie': '228', 'protein': '4.7', 'fat': '0.6', 'carb': '53.8'},
     {'name': '＜和生菓子・和半生菓子類＞ ずんだあん', 'calorie': '190', 'protein': '6.3', 'fat': '3.4', 'carb': '36.6'},
     {'name': '＜和生菓子・和半生菓子類＞ ずんだもち', 'calorie': '212', 'protein': '4.9', 'fat': '1.7', 'carb': '45.1'},
-    {
-      'name': '＜和生菓子・和半生菓子類＞ 大福もち こしあん入り',
-      'calorie': '223',
-      'protein': '4.6',
-      'fat': '0.5',
-      'carb': '53.2'
-    },
-    {
-      'name': '＜和生菓子・和半生菓子類＞ 大福もち つぶしあん入り',
-      'calorie': '223',
-      'protein': '4.7',
-      'fat': '0.6',
-      'carb': '52.8'
-    },
-    {
-      'name': '＜和生菓子・和半生菓子類＞ タルト （和菓子）',
-      'calorie': '288',
-      'protein': '5.9',
-      'fat': '3.0',
-      'carb': '60.7'
-    },
+    {'name': '＜和生菓子・和半生菓子類＞ 大福もち こしあん入り', 'calorie': '223', 'protein': '4.6', 'fat': '0.5', 'carb': '53.2'},
+    {'name': '＜和生菓子・和半生菓子類＞ 大福もち つぶしあん入り', 'calorie': '223', 'protein': '4.7', 'fat': '0.6', 'carb': '52.8'},
+    {'name': '＜和生菓子・和半生菓子類＞ タルト （和菓子）', 'calorie': '288', 'protein': '5.9', 'fat': '3.0', 'carb': '60.7'},
     {'name': '＜和生菓子・和半生菓子類＞ ちまき', 'calorie': '150', 'protein': '1.3', 'fat': '0.2', 'carb': '36.5'},
     {'name': '＜和生菓子・和半生菓子類＞ ちゃつう', 'calorie': '320', 'protein': '6.2', 'fat': '4.3', 'carb': '66.4'},
-    {
-      'name': '＜和生菓子・和半生菓子類＞ どら焼 こしあん入り',
-      'calorie': '282',
-      'protein': '6.6',
-      'fat': '3.1',
-      'carb': '58.4'
-    },
-    {
-      'name': '＜和生菓子・和半生菓子類＞ どら焼 つぶしあん入り',
-      'calorie': '292',
-      'protein': '6.6',
-      'fat': '3.2',
-      'carb': '57.9'
-    },
+    {'name': '＜和生菓子・和半生菓子類＞ どら焼 こしあん入り', 'calorie': '282', 'protein': '6.6', 'fat': '3.1', 'carb': '58.4'},
+    {'name': '＜和生菓子・和半生菓子類＞ どら焼 つぶしあん入り', 'calorie': '292', 'protein': '6.6', 'fat': '3.2', 'carb': '57.9'},
     {
       'name': '＜和生菓子・和半生菓子類＞ 生八つ橋 あん入り こしあん入り',
       'calorie': '274',
@@ -4117,42 +3983,12 @@ Map<String, List<Map<String, dynamic>>> foodSearchList = {
       'fat': '5.1',
       'carb': '43.4'
     },
-    {
-      'name': '＜和生菓子・和半生菓子類＞ もなか こしあん入り',
-      'calorie': '277',
-      'protein': '4.9',
-      'fat': '0.3',
-      'carb': '65.5'
-    },
-    {
-      'name': '＜和生菓子・和半生菓子類＞ もなか つぶしあん入り',
-      'calorie': '278',
-      'protein': '6.4',
-      'fat': '0.7',
-      'carb': '63.3'
-    },
+    {'name': '＜和生菓子・和半生菓子類＞ もなか こしあん入り', 'calorie': '277', 'protein': '4.9', 'fat': '0.3', 'carb': '65.5'},
+    {'name': '＜和生菓子・和半生菓子類＞ もなか つぶしあん入り', 'calorie': '278', 'protein': '6.4', 'fat': '0.7', 'carb': '63.3'},
     {'name': '＜和生菓子・和半生菓子類＞ ゆべし', 'calorie': '321', 'protein': '2.4', 'fat': '3.5', 'carb': '71.2'},
-    {
-      'name': '＜和生菓子・和半生菓子類＞ ようかん 練りようかん',
-      'calorie': '289',
-      'protein': '3.6',
-      'fat': '0.2',
-      'carb': '69.9'
-    },
-    {
-      'name': '＜和生菓子・和半生菓子類＞ ようかん 水ようかん',
-      'calorie': '168',
-      'protein': '2.6',
-      'fat': '0.2',
-      'carb': '39.9'
-    },
-    {
-      'name': '＜和生菓子・和半生菓子類＞ ようかん 蒸しようかん',
-      'calorie': '237',
-      'protein': '4.4',
-      'fat': '0.3',
-      'carb': '55.4'
-    },
+    {'name': '＜和生菓子・和半生菓子類＞ ようかん 練りようかん', 'calorie': '289', 'protein': '3.6', 'fat': '0.2', 'carb': '69.9'},
+    {'name': '＜和生菓子・和半生菓子類＞ ようかん 水ようかん', 'calorie': '168', 'protein': '2.6', 'fat': '0.2', 'carb': '39.9'},
+    {'name': '＜和生菓子・和半生菓子類＞ ようかん 蒸しようかん', 'calorie': '237', 'protein': '4.4', 'fat': '0.3', 'carb': '55.4'},
     {'name': '＜和干菓子類＞ あめ玉', 'calorie': '385', 'protein': '0', 'fat': '0', 'carb': '97.5'},
     {'name': '＜和干菓子類＞ 芋かりんとう', 'calorie': '465', 'protein': '1.4', 'fat': '20.6', 'carb': '71.3'},
     {'name': '＜和干菓子類＞ おこし', 'calorie': '376', 'protein': '3.8', 'fat': '0.7', 'carb': '90.2'},
@@ -4160,27 +3996,9 @@ Map<String, List<Map<String, dynamic>>> foodSearchList = {
     {'name': '＜和干菓子類＞ かりんとう 黒', 'calorie': '420', 'protein': '7.5', 'fat': '11.6', 'carb': '76.3'},
     {'name': '＜和干菓子類＞ かりんとう 白', 'calorie': '423', 'protein': '9.7', 'fat': '11.2', 'carb': '76.2'},
     {'name': '＜和干菓子類＞ ごかぼう', 'calorie': '367', 'protein': '10.6', 'fat': '6.4', 'carb': '71.7'},
-    {
-      'name': '＜和干菓子類＞ 小麦粉せんべい 磯部せんべい',
-      'calorie': '377',
-      'protein': '4.3',
-      'fat': '0.8',
-      'carb': '89.3'
-    },
-    {
-      'name': '＜和干菓子類＞ 小麦粉せんべい かわらせんべい',
-      'calorie': '390',
-      'protein': '7.0',
-      'fat': '3.2',
-      'carb': '84.9'
-    },
-    {
-      'name': '＜和干菓子類＞ 小麦粉せんべい 巻きせんべい',
-      'calorie': '386',
-      'protein': '4.3',
-      'fat': '1.4',
-      'carb': '90.4'
-    },
+    {'name': '＜和干菓子類＞ 小麦粉せんべい 磯部せんべい', 'calorie': '377', 'protein': '4.3', 'fat': '0.8', 'carb': '89.3'},
+    {'name': '＜和干菓子類＞ 小麦粉せんべい かわらせんべい', 'calorie': '390', 'protein': '7.0', 'fat': '3.2', 'carb': '84.9'},
+    {'name': '＜和干菓子類＞ 小麦粉せんべい 巻きせんべい', 'calorie': '386', 'protein': '4.3', 'fat': '1.4', 'carb': '90.4'},
     {
       'name': '＜和干菓子類＞ 小麦粉せんべい 南部せんべい ごま入り',
       'calorie': '423',
@@ -4213,20 +4031,8 @@ Map<String, List<Map<String, dynamic>>> foodSearchList = {
     {'name': '＜菓子パン類＞ 揚げパン', 'calorie': '369', 'protein': '8.7', 'fat': '18.7', 'carb': '43.5'},
     {'name': '＜菓子パン類＞ あんパン こしあん入り', 'calorie': '267', 'protein': '6.8', 'fat': '3.6', 'carb': '53.5'},
     {'name': '＜菓子パン類＞ あんパン つぶしあん入り', 'calorie': '266', 'protein': '7.0', 'fat': '3.8', 'carb': '53.0'},
-    {
-      'name': '＜菓子パン類＞ あんパン 薄皮タイプ こしあん入り',
-      'calorie': '256',
-      'protein': '6.6',
-      'fat': '3.5',
-      'carb': '51.9'
-    },
-    {
-      'name': '＜菓子パン類＞ あんパン 薄皮タイプ つぶしあん入り',
-      'calorie': '258',
-      'protein': '6.8',
-      'fat': '3.7',
-      'carb': '51.4'
-    },
+    {'name': '＜菓子パン類＞ あんパン 薄皮タイプ こしあん入り', 'calorie': '256', 'protein': '6.6', 'fat': '3.5', 'carb': '51.9'},
+    {'name': '＜菓子パン類＞ あんパン 薄皮タイプ つぶしあん入り', 'calorie': '258', 'protein': '6.8', 'fat': '3.7', 'carb': '51.4'},
     {'name': '＜菓子パン類＞ カレーパン 皮及び具', 'calorie': '302', 'protein': '6.6', 'fat': '18.3', 'carb': '32.3'},
     {'name': '＜菓子パン類＞ カレーパン 皮のみ', 'calorie': '363', 'protein': '7.2', 'fat': '22.4', 'carb': '38.4'},
     {'name': '＜菓子パン類＞ カレーパン 具のみ', 'calorie': '168', 'protein': '5.3', 'fat': '9.3', 'carb': '18.8'},
@@ -4239,27 +4045,9 @@ Map<String, List<Map<String, dynamic>>> foodSearchList = {
     {'name': '＜菓子パン類＞ 菓子パン あんなし', 'calorie': '294', 'protein': '8.2', 'fat': '6.1', 'carb': '54.1'},
     {'name': '＜ケーキ・ペストリー類＞ シュークリーム', 'calorie': '211', 'protein': '6.0', 'fat': '11.4', 'carb': '25.5'},
     {'name': '＜ケーキ・ペストリー類＞ スポンジケーキ', 'calorie': '283', 'protein': '7.9', 'fat': '7.5', 'carb': '52.1'},
-    {
-      'name': '＜ケーキ・ペストリー類＞ ショートケーキ 果実なし',
-      'calorie': '318',
-      'protein': '6.9',
-      'fat': '15.2',
-      'carb': '42.3'
-    },
-    {
-      'name': '＜ケーキ・ペストリー類＞ ショートケーキ いちご',
-      'calorie': '314',
-      'protein': '6.9',
-      'fat': '14.7',
-      'carb': '42.7'
-    },
-    {
-      'name': '＜ケーキ・ペストリー類＞ タルト （洋菓子）',
-      'calorie': '247',
-      'protein': '4.7',
-      'fat': '13.5',
-      'carb': '30.5'
-    },
+    {'name': '＜ケーキ・ペストリー類＞ ショートケーキ 果実なし', 'calorie': '318', 'protein': '6.9', 'fat': '15.2', 'carb': '42.3'},
+    {'name': '＜ケーキ・ペストリー類＞ ショートケーキ いちご', 'calorie': '314', 'protein': '6.9', 'fat': '14.7', 'carb': '42.7'},
+    {'name': '＜ケーキ・ペストリー類＞ タルト （洋菓子）', 'calorie': '247', 'protein': '4.7', 'fat': '13.5', 'carb': '30.5'},
     {
       'name': '＜ケーキ・ペストリー類＞ チーズケーキ ベイクドチーズケーキ',
       'calorie': '299',
@@ -4387,20 +4175,8 @@ Map<String, List<Map<String, dynamic>>> foodSearchList = {
       'carb': '56.7'
     },
     {'name': '＜ケーキ・ペストリー類＞ パイ パイ皮', 'calorie': '373', 'protein': '5.0', 'fat': '25.4', 'carb': '36.4'},
-    {
-      'name': '＜ケーキ・ペストリー類＞ パイ アップルパイ',
-      'calorie': '294',
-      'protein': '4.0',
-      'fat': '17.5',
-      'carb': '32.8'
-    },
-    {
-      'name': '＜ケーキ・ペストリー類＞ パイ ミートパイ',
-      'calorie': '381',
-      'protein': '9.7',
-      'fat': '29.9',
-      'carb': '22.2'
-    },
+    {'name': '＜ケーキ・ペストリー類＞ パイ アップルパイ', 'calorie': '294', 'protein': '4.0', 'fat': '17.5', 'carb': '32.8'},
+    {'name': '＜ケーキ・ペストリー類＞ パイ ミートパイ', 'calorie': '381', 'protein': '9.7', 'fat': '29.9', 'carb': '22.2'},
     {'name': '＜ケーキ・ペストリー類＞ バターケーキ', 'calorie': '422', 'protein': '5.8', 'fat': '25.3', 'carb': '48.0'},
     {'name': '＜ケーキ・ペストリー類＞ ホットケーキ', 'calorie': '253', 'protein': '7.7', 'fat': '5.4', 'carb': '45.3'},
     {
@@ -4410,13 +4186,7 @@ Map<String, List<Map<String, dynamic>>> foodSearchList = {
       'fat': '7.9',
       'carb': '38.1'
     },
-    {
-      'name': '＜ケーキ・ペストリー類＞ ワッフル ジャム入り',
-      'calorie': '279',
-      'protein': '4.9',
-      'fat': '4.2',
-      'carb': '57.3'
-    },
+    {'name': '＜ケーキ・ペストリー類＞ ワッフル ジャム入り', 'calorie': '279', 'protein': '4.9', 'fat': '4.2', 'carb': '57.3'},
     {'name': '＜デザート菓子類＞ カスタードプリン', 'calorie': '116', 'protein': '5.7', 'fat': '5.5', 'carb': '14.0'},
     {'name': '＜デザート菓子類＞ 牛乳寒天', 'calorie': '61', 'protein': '1.1', 'fat': '1.3', 'carb': '12.2'},
     {'name': '＜デザート菓子類＞ こんにゃくゼリー', 'calorie': '65', 'protein': '0', 'fat': '0.1', 'carb': '16.4'},
@@ -4426,13 +4196,7 @@ Map<String, List<Map<String, dynamic>>> foodSearchList = {
     {'name': '＜デザート菓子類＞ ゼリー ワイン', 'calorie': '65', 'protein': '1.7', 'fat': '0', 'carb': '13.2'},
     {'name': '＜デザート菓子類＞ ババロア', 'calorie': '204', 'protein': '5.6', 'fat': '12.9', 'carb': '19.9'},
     {'name': '＜ビスケット類＞ ウエハース', 'calorie': '439', 'protein': '7.6', 'fat': '13.6', 'carb': '75.3'},
-    {
-      'name': '＜ビスケット類＞ ウエハース クリーム入り',
-      'calorie': '492',
-      'protein': '7.5',
-      'fat': '21.8',
-      'carb': '65.5'
-    },
+    {'name': '＜ビスケット類＞ ウエハース クリーム入り', 'calorie': '492', 'protein': '7.5', 'fat': '21.8', 'carb': '65.5'},
     {
       'name': '＜ビスケット類＞ クラッカー オイルスプレークラッカー',
       'calorie': '481',
@@ -4461,20 +4225,8 @@ Map<String, List<Map<String, dynamic>>> foodSearchList = {
     {'name': '＜キャンデー類＞ ブリットル', 'calorie': '506', 'protein': '12.6', 'fat': '26.5', 'carb': '58.1'},
     {'name': '＜キャンデー類＞ マシュマロ', 'calorie': '324', 'protein': '2.1', 'fat': '0', 'carb': '79.3'},
     {'name': '＜キャンデー類＞ ラムネ', 'calorie': '373', 'protein': '0', 'fat': '0.5', 'carb': '92.2'},
-    {
-      'name': '＜チョコレート類＞ アーモンドチョコレート',
-      'calorie': '562',
-      'protein': '11.4',
-      'fat': '40.4',
-      'carb': '43.3'
-    },
-    {
-      'name': '＜チョコレート類＞ カバーリングチョコレート',
-      'calorie': '488',
-      'protein': '7.1',
-      'fat': '24.3',
-      'carb': '64.2'
-    },
+    {'name': '＜チョコレート類＞ アーモンドチョコレート', 'calorie': '562', 'protein': '11.4', 'fat': '40.4', 'carb': '43.3'},
+    {'name': '＜チョコレート類＞ カバーリングチョコレート', 'calorie': '488', 'protein': '7.1', 'fat': '24.3', 'carb': '64.2'},
     {'name': '＜チョコレート類＞ ホワイトチョコレート', 'calorie': '588', 'protein': '7.2', 'fat': '39.5', 'carb': '50.9'},
     {'name': '＜チョコレート類＞ ミルクチョコレート', 'calorie': '550', 'protein': '6.9', 'fat': '34.1', 'carb': '55.8'},
     {'name': '＜果実菓子類＞ マロングラッセ', 'calorie': '303', 'protein': '1.1', 'fat': '0.3', 'carb': '77.4'},
@@ -4618,13 +4370,7 @@ Map<String, List<Map<String, dynamic>>> foodSearchList = {
     {'name': '＜調味料類＞ （だし類） 顆粒おでん用', 'calorie': '166', 'protein': '9.6', 'fat': '0.1', 'carb': '31.7'},
     {'name': '＜調味料類＞ （だし類） 顆粒中華だし', 'calorie': '210', 'protein': '12.6', 'fat': '1.6', 'carb': '36.6'},
     {'name': '＜調味料類＞ （だし類） 顆粒和風だし', 'calorie': '223', 'protein': '24.2', 'fat': '0.3', 'carb': '31.1'},
-    {
-      'name': '＜調味料類＞ （だし類） なべつゆ ストレート しょうゆ味',
-      'calorie': '20',
-      'protein': '1.0',
-      'fat': '0',
-      'carb': '4.1'
-    },
+    {'name': '＜調味料類＞ （だし類） なべつゆ ストレート しょうゆ味', 'calorie': '20', 'protein': '1.0', 'fat': '0', 'carb': '4.1'},
     {'name': '＜調味料類＞ （だし類） めんつゆ ストレート', 'calorie': '44', 'protein': '2.2', 'fat': '0', 'carb': '8.7'},
     {'name': '＜調味料類＞ （だし類） めんつゆ 二倍濃縮', 'calorie': '71', 'protein': '3.4', 'fat': '0', 'carb': '14.4'},
     {'name': '＜調味料類＞ （だし類） めんつゆ 三倍濃縮', 'calorie': '98', 'protein': '4.5', 'fat': '0', 'carb': '20.0'},
@@ -4654,28 +4400,10 @@ Map<String, List<Map<String, dynamic>>> foodSearchList = {
     {'name': '＜調味料類＞ （調味ソース類） ごまだれ', 'calorie': '282', 'protein': '7.2', 'fat': '15.1', 'carb': '29.2'},
     {'name': '＜調味料類＞ （調味ソース類） 三杯酢', 'calorie': '85', 'protein': '0.9', 'fat': '0', 'carb': '17.8'},
     {'name': '＜調味料類＞ （調味ソース類） 二杯酢', 'calorie': '59', 'protein': '3.5', 'fat': '0', 'carb': '7.6'},
-    {
-      'name': '＜調味料類＞ （調味ソース類） すし酢 ちらし・稲荷用',
-      'calorie': '150',
-      'protein': '0.1',
-      'fat': '0',
-      'carb': '34.9'
-    },
+    {'name': '＜調味料類＞ （調味ソース類） すし酢 ちらし・稲荷用', 'calorie': '150', 'protein': '0.1', 'fat': '0', 'carb': '34.9'},
     {'name': '＜調味料類＞ （調味ソース類） すし酢 にぎり用', 'calorie': '70', 'protein': '0.2', 'fat': '0', 'carb': '14.3'},
-    {
-      'name': '＜調味料類＞ （調味ソース類） すし酢 巻き寿司・箱寿司用',
-      'calorie': '107',
-      'protein': '0.1',
-      'fat': '0',
-      'carb': '23.8'
-    },
-    {
-      'name': '＜調味料類＞ （調味ソース類） 中華風合わせ酢',
-      'calorie': '153',
-      'protein': '3.0',
-      'fat': '3.4',
-      'carb': '24.8'
-    },
+    {'name': '＜調味料類＞ （調味ソース類） すし酢 巻き寿司・箱寿司用', 'calorie': '107', 'protein': '0.1', 'fat': '0', 'carb': '23.8'},
+    {'name': '＜調味料類＞ （調味ソース類） 中華風合わせ酢', 'calorie': '153', 'protein': '3.0', 'fat': '3.4', 'carb': '24.8'},
     {'name': '＜調味料類＞ （調味ソース類） デミグラスソース', 'calorie': '82', 'protein': '2.9', 'fat': '3.0', 'carb': '11.0'},
     {'name': '＜調味料類＞ （調味ソース類） テンメンジャン', 'calorie': '249', 'protein': '8.5', 'fat': '7.7', 'carb': '38.1'},
     {'name': '＜調味料類＞ （調味ソース類） 冷やし中華のたれ', 'calorie': '114', 'protein': '2.1', 'fat': '1.2', 'carb': '23.1'},
@@ -4687,13 +4415,7 @@ Map<String, List<Map<String, dynamic>>> foodSearchList = {
     {'name': '＜調味料類＞ （調味ソース類） ミートソース', 'calorie': '96', 'protein': '3.8', 'fat': '5.0', 'carb': '10.1'},
     {'name': '＜調味料類＞ （調味ソース類） 焼きそば粉末ソース', 'calorie': '248', 'protein': '5.6', 'fat': '0.7', 'carb': '62.4'},
     {'name': '＜調味料類＞ （調味ソース類） 焼き鳥のたれ', 'calorie': '131', 'protein': '3.3', 'fat': '0', 'carb': '28.5'},
-    {
-      'name': '＜調味料類＞ （調味ソース類） 焼き肉のたれ',
-      'calorie': '164',
-      'protein': '4.3',
-      'fat': '2.2',
-      'carb': '32.3'
-    },
+    {'name': '＜調味料類＞ （調味ソース類） 焼き肉のたれ', 'calorie': '164', 'protein': '4.3', 'fat': '2.2', 'carb': '32.3'},
     {'name': '＜調味料類＞ （調味ソース類） みたらしのたれ', 'calorie': '127', 'protein': '0.9', 'fat': '0', 'carb': '30.8'},
     {'name': '＜調味料類＞ （調味ソース類） ゆずこしょう', 'calorie': '37', 'protein': '1.3', 'fat': '0.8', 'carb': '9.3'},
     {'name': '＜調味料類＞ （トマト加工品類） トマトピューレー', 'calorie': '44', 'protein': '1.9', 'fat': '0.1', 'carb': '9.9'},
@@ -4780,23 +4502,11 @@ Map<String, List<Map<String, dynamic>>> foodSearchList = {
     {'name': '＜調味料類＞ （みそ類） 練りみそ', 'calorie': '267', 'protein': '5.5', 'fat': '1.7', 'carb': '59.1'},
     {'name': '＜調味料類＞ （ルウ類） カレールウ', 'calorie': '474', 'protein': '6.5', 'fat': '34.1', 'carb': '44.7'},
     {'name': '＜調味料類＞ （ルウ類） ハヤシルウ', 'calorie': '501', 'protein': '5.8', 'fat': '33.2', 'carb': '47.5'},
-    {
-      'name': '＜調味料類＞ （その他） お茶漬けの素 さけ',
-      'calorie': '251',
-      'protein': '20.2',
-      'fat': '3.7',
-      'carb': '37.1'
-    },
+    {'name': '＜調味料類＞ （その他） お茶漬けの素 さけ', 'calorie': '251', 'protein': '20.2', 'fat': '3.7', 'carb': '37.1'},
     {'name': '＜調味料類＞ （その他） キムチの素', 'calorie': '125', 'protein': '5.3', 'fat': '1.0', 'carb': '26.0'},
     {'name': '＜調味料類＞ （その他） 酒かす', 'calorie': '215', 'protein': '14.9', 'fat': '1.5', 'carb': '23.8'},
     {'name': '＜調味料類＞ （その他） 即席すまし汁', 'calorie': '194', 'protein': '18.3', 'fat': '0.8', 'carb': '30.5'},
-    {
-      'name': '＜調味料類＞ （その他） ふりかけ たまご',
-      'calorie': '428',
-      'protein': '23.4',
-      'fat': '21.9',
-      'carb': '39.7'
-    },
+    {'name': '＜調味料類＞ （その他） ふりかけ たまご', 'calorie': '428', 'protein': '23.4', 'fat': '21.9', 'carb': '39.7'},
     {'name': '＜調味料類＞ （その他） みりん風調味料', 'calorie': '225', 'protein': '0.1', 'fat': '0', 'carb': '55.7'},
     {'name': '＜調味料類＞ （その他） 料理酒', 'calorie': '88', 'protein': '0.2', 'fat': '0', 'carb': '4.7'},
     {'name': '＜香辛料類＞ オールスパイス 粉', 'calorie': '364', 'protein': '5.6', 'fat': '5.6', 'carb': '75.2'},
@@ -4857,20 +4567,8 @@ Map<String, List<Map<String, dynamic>>> foodSearchList = {
     {'name': '洋風料理 カレー類 チキンカレー', 'calorie': '131', 'protein': '5.6', 'fat': '8.8', 'carb': '8.4'},
     {'name': '洋風料理 カレー類 ビーフカレー', 'calorie': '119', 'protein': '2.4', 'fat': '9.0', 'carb': '8.1'},
     {'name': '洋風料理 カレー類 ポークカレー', 'calorie': '116', 'protein': '2.8', 'fat': '8.6', 'carb': '7.7'},
-    {
-      'name': '洋風料理 コロッケ類 カニクリームコロッケ',
-      'calorie': '255',
-      'protein': '5.1',
-      'fat': '17.1',
-      'carb': '22.0'
-    },
-    {
-      'name': '洋風料理 コロッケ類 コーンクリームコロッケ',
-      'calorie': '245',
-      'protein': '5.1',
-      'fat': '16.0',
-      'carb': '23.4'
-    },
+    {'name': '洋風料理 コロッケ類 カニクリームコロッケ', 'calorie': '255', 'protein': '5.1', 'fat': '17.1', 'carb': '22.0'},
+    {'name': '洋風料理 コロッケ類 コーンクリームコロッケ', 'calorie': '245', 'protein': '5.1', 'fat': '16.0', 'carb': '23.4'},
     {'name': '洋風料理 コロッケ類 ポテトコロッケ', 'calorie': '226', 'protein': '5.3', 'fat': '12.6', 'carb': '25.2'},
     {'name': '洋風料理 シチュー類 チキンシチュー', 'calorie': '124', 'protein': '6.2', 'fat': '8.0', 'carb': '7.8'},
     {'name': '洋風料理 シチュー類 ビーフシチュー', 'calorie': '153', 'protein': '4.1', 'fat': '12.6', 'carb': '7.1'},
@@ -4884,27 +4582,9 @@ Map<String, List<Map<String, dynamic>>> foodSearchList = {
       'carb': '8.5'
     },
     {'name': '洋風料理 スープ類 コーンクリームスープ 粉末タイプ', 'calorie': '425', 'protein': '8.1', 'fat': '13.7', 'carb': '67.4'},
-    {
-      'name': '洋風料理 ハンバーグステーキ類 合いびきハンバーグ',
-      'calorie': '197',
-      'protein': '13.4',
-      'fat': '12.2',
-      'carb': '10.0'
-    },
-    {
-      'name': '洋風料理 ハンバーグステーキ類 チキンハンバーグ',
-      'calorie': '171',
-      'protein': '12.6',
-      'fat': '10.2',
-      'carb': '8.5'
-    },
-    {
-      'name': '洋風料理 ハンバーグステーキ類 豆腐ハンバーグ',
-      'calorie': '142',
-      'protein': '9.9',
-      'fat': '9.2',
-      'carb': '8.4'
-    },
+    {'name': '洋風料理 ハンバーグステーキ類 合いびきハンバーグ', 'calorie': '197', 'protein': '13.4', 'fat': '12.2', 'carb': '10.0'},
+    {'name': '洋風料理 ハンバーグステーキ類 チキンハンバーグ', 'calorie': '171', 'protein': '12.6', 'fat': '10.2', 'carb': '8.5'},
+    {'name': '洋風料理 ハンバーグステーキ類 豆腐ハンバーグ', 'calorie': '142', 'protein': '9.9', 'fat': '9.2', 'carb': '8.4'},
     {'name': '洋風料理 フライ類 いかフライ', 'calorie': '227', 'protein': '13.3', 'fat': '11.3', 'carb': '19.7'},
     {'name': '洋風料理 フライ類 えびフライ', 'calorie': '236', 'protein': '15.9', 'fat': '11.6', 'carb': '20.5'},
     {'name': '洋風料理 フライ類 白身フライ', 'calorie': '299', 'protein': '9.7', 'fat': '21.8', 'carb': '16.2'},
@@ -4938,5 +4618,3 @@ Map<String, List<Map<String, dynamic>>> foodSearchList = {
     {'name': '韓国料理 和え物類 もやしのナムル', 'calorie': '70', 'protein': '3.1', 'fat': '4.5', 'carb': '5.7'},
   ],
 };
-
-

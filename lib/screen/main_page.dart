@@ -135,9 +135,8 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                         children: [
                           const TextSpan(text: "PFCバランス: "),
                           TextSpan(
-                              text: "${scoreToday.toInt()}",
+                              text: "${pfcBalance[0]}:${pfcBalance[1]}:${pfcBalance[2]}",
                               style: const TextStyle(fontWeight: FontWeight.bold)),
-                          const TextSpan(text: " [kg・rep・set]"),
                         ],
                       )),
                       const SizedBox(height: 300),
@@ -288,15 +287,12 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
   }
 
   Future<void> updateFoodData() async {
-    print("updateFoodData is called");
     if (db == '') await getDatabase();
     List<TableRow> _recordsTodayTable = [
       const TableRow(children: [
-        Center(child: Text(' 食品 ')),
+        Center(child: Text(' 食品名 ')),
         Center(child: Text(' カロリー ')),
-        Center(child: Text(' プロテイン ')),
-        Center(child: Text(' 脂質 ')),
-        Center(child: Text(' 炭水化物 ')),
+        Center(child: Text(' 摂取量 ')),
       ])
     ];
 
@@ -313,10 +309,8 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
           Center(
               child: Text(' ${i["name"].toString().substring(0, min(7, i["name"].toString().length))}… ',
                   textScaleFactor: 1.1)),
-        Center(child: Text(' ${double.parse(i["calorie"]).toStringAsFixed(1)} ', textScaleFactor: 1.1)),
-        Center(child: Text(' ${i["protein"]} ', textScaleFactor: 1.1)),
-        Center(child: Text(' ${i["fat"]} ', textScaleFactor: 1.1)),
-        Center(child: Text(' ${i["carb"]} ', textScaleFactor: 1.1)),
+        Center(child: Text(' ${i["amount"]} g ', textScaleFactor: 1.1)),
+        Center(child: Text(' ${double.parse(i["calorie"]).toStringAsFixed(1)} kcal ', textScaleFactor: 1.1)),
       ];
       _recordsTodayTable.add(TableRow(
         children: children,
@@ -326,6 +320,16 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
     calorieToday = 0;
     for (var i in recordsToday) {
       calorieToday += double.parse(i['calorie'].toString());
+    }
+    List<double> _pfcBalance = [0, 0, 0];
+    for (var i in recordsToday) {
+      _pfcBalance[0] += double.parse(i['protein']);
+      _pfcBalance[1] += double.parse(i['fat']);
+      _pfcBalance[2] += double.parse(i['carb']);
+    }
+    double _pfcSum = _pfcBalance.reduce((a, b) => a + b);
+    for (var i = 0; i < 3; i++) {
+      pfcBalance[i] = _pfcSum == 0 ? 0 : (_pfcBalance[i] / _pfcSum * 10).toInt();
     }
   }
 
@@ -782,9 +786,8 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
       return foodList.map((val) => MySelectionItem(title: val['name'])).toList();
     }
 
-    String _food = foodList[0]['name'];
+    String _food = foodList[selectedIndex3]['name'];
     double _amount = 0;
-    int? selectedIndex3 = 0;
 
     return showDialog(
         context: context,
@@ -807,10 +810,10 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                         margin: const EdgeInsets.only(top: 10, bottom: 10),
                         child: DirectSelect(
                           itemExtent: 35.0,
-                          selectedIndex: selectedIndex3!,
+                          selectedIndex: selectedIndex3,
                           child: MySelectionItem(
                             isForList: true,
-                            title: foodList[selectedIndex3!]['name'],
+                            title: foodList[selectedIndex3]['name'],
                           ),
                           onSelectedItemChanged: (index) {
                             _food = foodList[index!]['name'];
