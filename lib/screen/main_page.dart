@@ -175,8 +175,17 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                       child: FloatingActionButton.extended(
                         heroTag: "hero2",
                         onPressed: () {
-                          audioPlayer.play('ui_tap-variant-01.wav', volume: volume);
-                          displayAddExerciseRecordPopup(context);
+                          if (exerciseList.isEmpty) {
+                            showSimpleNotification(
+                              const Text("編集ボタンから種目を追加して下さい！", style: TextStyle(color: Colors.white)),
+                              background: Colors.red,
+                              position: NotificationPosition.bottom,
+                              slideDismissDirection: DismissDirection.down,
+                            );
+                          } else {
+                            audioPlayer.play('ui_tap-variant-01.wav', volume: volume);
+                            displayAddExerciseRecordPopup(context);
+                          }
                         },
                         enableFeedback: false,
                         foregroundColor: Colors.white,
@@ -223,8 +232,17 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                       child: FloatingActionButton.extended(
                         heroTag: "hero2",
                         onPressed: () {
-                          audioPlayer.play('ui_tap-variant-01.wav', volume: volume);
-                          displayAddFoodRecordPopup(context);
+                          if (foodList.isEmpty) {
+                            showSimpleNotification(
+                              const Text("編集ボタンから食事を追加して下さい！", style: TextStyle(color: Colors.white)),
+                              background: Colors.red,
+                              position: NotificationPosition.bottom,
+                              slideDismissDirection: DismissDirection.down,
+                            );
+                          } else {
+                            audioPlayer.play('ui_tap-variant-01.wav', volume: volume);
+                            displayAddFoodRecordPopup(context);
+                          }
                         },
                         enableFeedback: false,
                         foregroundColor: Colors.white,
@@ -329,7 +347,7 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
     }
     double _pfcSum = _pfcBalance.reduce((a, b) => a + b);
     for (var i = 0; i < 3; i++) {
-      pfcBalance[i] = _pfcSum == 0 ? 0 : (_pfcBalance[i] / _pfcSum * 10).toInt();
+      pfcBalance[i] = _pfcSum == 0 ? 0 : (_pfcBalance[i] / _pfcSum * 10).round();
     }
   }
 
@@ -889,7 +907,6 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                         "${DateTime.now().year} ${DateTime.now().month} ${DateTime.now().day} ${DateTime.now().hour} ${DateTime.now().minute}";
                     for (var i in foodList) {
                       if (i['name'] == _food) {
-                        print(i);
                         Future(() async {
                           await db.rawQuery('''
                             INSERT INTO `food_records` 
@@ -901,7 +918,6 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                             "${double.parse(i['carb']) * _amount / 100}",
                             "${i['group']}")''');
                         });
-                        print("rawQuery end!!");
                         break;
                       }
                     }
@@ -1098,10 +1114,11 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
         builder: (context) {
           return StatefulBuilder(builder: (context, setState) {
             return AlertDialog(
-              content: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
+              content: SingleChildScrollView(
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
                     const Text('食品名'),
                     Center(
                         child: Container(
@@ -1299,7 +1316,7 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                           backgroundColor: Colors.black,
                           selectionColor: Colors.white12,
                         )),
-                  ]),
+                  ])),
               actions: <Widget>[
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(

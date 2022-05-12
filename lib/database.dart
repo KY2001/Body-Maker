@@ -75,10 +75,6 @@ Future<void> initDatabase() async {
    `used_time` INTEGER NOT NULL
    )
    ''');
-  await db.rawQuery('''
-  INSERT INTO `exercise` (`name`, `group`, `used_time`) SELECT "デッドリフト", "フリーウェイト(背中)", "0"
-  WHERE NOT EXISTS (SELECT * FROM `exercise`)
-  ''');
   await db.rawQuery('INSERT OR IGNORE INTO `options` (`id`) VALUES(1)');
   await db.rawQuery('SELECT * FROM `exercise` ORDER BY `used_time`').then((value) {
     for (var row in value) {
@@ -98,5 +94,10 @@ Future<void> initDatabase() async {
     minRep = double.parse(value['minRep']);
     maxSet = double.parse(value['maxSet']);
     minSet = double.parse(value['minSet']);
+  });
+  await db.rawQuery('SELECT * FROM `food`').then((value) {
+    for (var i in value){
+      foodList.add(i);
+    }
   });
 }

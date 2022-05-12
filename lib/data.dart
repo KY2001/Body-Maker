@@ -8,9 +8,7 @@ dynamic db = '';
 double volume = 1.0;
 List<TableRow> exerciseRecordsTodayTable = [];
 List<TableRow> foodRecordsTodayTable = [];
-List<Map<String, dynamic>> exerciseList = [
-  {'used_time': 0, 'name': 'ベンチプレス', 'group': 'フリーウェイト(胸)'}
-];
+List<Map<String, dynamic>> exerciseList = [];
 List<Map<String, dynamic>> foodList = [];
 int? selectedIndex = 0;
 int selectedIndex3 = 0;
