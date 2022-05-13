@@ -37,7 +37,7 @@ Future<void> initDatabase() async {
   await db.rawQuery('''
   CREATE TABLE IF NOT EXISTS `options` (
    `id` INTEGER PRIMARY KEY,
-   `exercise` TEXT default ベンチプレス,
+   `exercise` TEXT default 選択する,
    `weight` TEXT default 10,
    `rep` TEXT default 10,
    `set` TEXT default 3,

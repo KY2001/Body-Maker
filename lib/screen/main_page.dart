@@ -352,10 +352,6 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
   }
 
   Future<void> displayAddExerciseRecordPopup(BuildContext context) async {
-    List<Widget> buildItems() {
-      return exerciseList.map((val) => MySelectionItem(title: val['name'])).toList();
-    }
-
     return showDialog(
         context: context,
         builder: (context) {
@@ -385,33 +381,77 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                         },
                       )
                     ]),
-                    Container(
-                        alignment: Alignment.center,
-                        //width: 180,
-                        //height: 30,
+                    Center(
+                        child: Stack(children: <Widget>[
+                      Center(
+                          child: Container(
+                        height: 34,
+                        width: 230,
+                        margin: const EdgeInsets.only(top: 5),
+                        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+                          Text(
+                            exercise.length <= 16 ? exercise : exercise.substring(0, 15) + '...',
+                            textScaleFactor: 0.9,
+                            style: const TextStyle(color: Colors.white),
+                          )
+                        ]),
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.blue),
-                          borderRadius: BorderRadius.circular(20),
+                          color: Colors.grey[800],
+                          borderRadius: BorderRadius.circular(4),
+                          boxShadow: const [
+                            BoxShadow(
+                              offset: Offset(0, 0),
+                              blurRadius: 2,
+                              spreadRadius: 2,
+                              color: Colors.black26,
+                            ),
+                          ],
                         ),
-                        margin: const EdgeInsets.only(top: 10, bottom: 10),
-                        child: DirectSelect(
-                          itemExtent: 35.0,
-                          selectedIndex: selectedIndex!,
-                          child: MySelectionItem(
-                            isForList: true,
-                            title: exerciseList[selectedIndex!]['name'],
-                          ),
-                          onSelectedItemChanged: (index) {
-                            exercise = exerciseList[index!]['name'];
-                            setState(() {
-                              selectedIndex = index;
-                            });
-                          },
-                          mode: DirectSelectMode.tap,
-                          items: buildItems(),
-                          backgroundColor: Colors.black,
-                          selectionColor: Colors.white12,
-                        )),
+                      )),
+                      Center(
+                          child: Container(
+                              height: 40,
+                              width: 230,
+                              margin: const EdgeInsets.only(bottom: 10),
+                              child: SmartSelect<String>.single(
+                                  title: '',
+                                  placeholder: '',
+                                  value: '',
+                                  onChange: (value) {
+                                    if (value.value != '') {
+                                      setState(() {
+                                        exercise = value.value;
+                                      });
+                                      value.value = '';
+                                    }
+                                  },
+                                  choiceItems: S2Choice.listFrom<String, Map>(
+                                    source: exerciseList,
+                                    value: (index, item) => item['name'],
+                                    title: (index, item) => item['name'],
+                                    group: (index, item) => item['group'],
+                                  ),
+                                  modalType: S2ModalType.fullPage,
+                                  choiceGrouped: true,
+                                  modalFilter: true,
+                                  modalFilterAuto: true,
+                                  modalHeaderStyle: S2ModalHeaderStyle(
+                                    backgroundColor: Colors.grey[850],
+                                    textStyle: const TextStyle(color: Colors.white),
+                                    iconTheme: const IconThemeData(color: Colors.white),
+                                    actionsIconTheme: const IconThemeData(color: Colors.white),
+                                  ),
+                                  modalStyle: S2ModalStyle(backgroundColor: Colors.grey[850]),
+                                  choiceStyle: const S2ChoiceStyle(
+                                      titleStyle: TextStyle(color: Colors.white), activeColor: Colors.white),
+                                  tileBuilder: (context, state) {
+                                    return S2Tile.fromState(
+                                      state,
+                                      leading: const Text(''),
+                                      trailing: const Text(''),
+                                    );
+                                  })))
+                    ])),
                     Text('重量: ${weight.toStringAsFixed(1)} [kg]'),
                     Slider(
                       value: weight,
