@@ -48,7 +48,10 @@ Future<void> initDatabase() async {
    `maxRep` TEXT default 20,
    `minRep` TEXT default 1,
    `maxSet` TEXT default 10,
-   `minSet` TEXT default 1)
+   `minSet` TEXT default 1,
+   `food` TEXT default 選択する,
+   `amount` TEXT default 100
+   )
    ''');
   await db.rawQuery(''' 
   CREATE TABLE IF NOT EXISTS `food_records` (
@@ -94,6 +97,8 @@ Future<void> initDatabase() async {
     minRep = double.parse(value['minRep']);
     maxSet = double.parse(value['maxSet']);
     minSet = double.parse(value['minSet']);
+    food = value['food'];
+    amount = double.parse(value['amount']);
   });
   await db.rawQuery('SELECT * FROM `food`').then((value) {
     for (var i in value){

@@ -97,7 +97,7 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                       Text.rich(TextSpan(
                         style: const TextStyle(fontSize: 21),
                         children: [
-                          const TextSpan(text: "スコア: "),
+                          const TextSpan(text: "総負荷量: "),
                           TextSpan(
                               text: "${scoreToday.toInt()}",
                               style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -276,20 +276,28 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
         'SELECT * FROM `exercise_records` WHERE `time` LIKE "${DateTime.now().year} ${DateTime.now().month} ${DateTime.now().day}%"');
     for (var i in recordsToday) {
       List<Widget> children = [
-        Center(child: Text(' ${timeDisAssemble(i["time"])['hour:minute']} ', textScaleFactor: 1.1)),
-        if (i["exercise"].toString().length <= 8)
-          Center(
-              child: Text(
-                  ' ${i["exercise"].toString().substring(0, min(8, i["exercise"].toString().length))} ',
-                  textScaleFactor: 1.1))
-        else
-          Center(
-              child: Text(
-                  ' ${i["exercise"].toString().substring(0, min(7, i["exercise"].toString().length))}… ',
-                  textScaleFactor: 1.1)),
-        Center(child: Text(' ${double.parse(i["weight"]).toStringAsFixed(1)} ', textScaleFactor: 1.1)),
-        Center(child: Text(' ${i["rep"]} ', textScaleFactor: 1.1)),
-        Center(child: Text(' ${i["set"]} ', textScaleFactor: 1.1)),
+        TableCell(
+            verticalAlignment: TableCellVerticalAlignment.middle,
+            child:
+                Center(child: Text(' ${timeDisAssemble(i["time"])['hour:minute']} ', textScaleFactor: 1.1))),
+        TableCell(
+            verticalAlignment: TableCellVerticalAlignment.middle,
+            child: Center(
+                child: Text(
+                    i["exercise"].toString().length <= 8
+                        ? ' ${i["exercise"].toString().substring(0, min(8, i["exercise"].toString().length))} '
+                        : ' ${i["exercise"].toString().substring(0, min(7, i["exercise"].toString().length))}… ',
+                    textScaleFactor: 1.1))),
+        TableCell(
+            verticalAlignment: TableCellVerticalAlignment.middle,
+            child: Center(
+                child: Text(' ${double.parse(i["weight"]).toStringAsFixed(1)} ', textScaleFactor: 1.1))),
+        TableCell(
+            verticalAlignment: TableCellVerticalAlignment.middle,
+            child: Center(child: Text(' ${i["rep"]} ', textScaleFactor: 1.1))),
+        TableCell(
+            verticalAlignment: TableCellVerticalAlignment.middle,
+            child: Center(child: Text(' ${i["set"]} ', textScaleFactor: 1.1))),
       ];
       _recordsTodayTable.add(TableRow(
         children: children,
@@ -319,16 +327,22 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
     for (var i in recordsToday) {
       List<Widget> children = [
         // Center(child: Text(' ${timeDisAssemble(i["time"])['hour:minute']} ', textScaleFactor: 1.1)),
-        if (i["name"].toString().length <= 8)
-          Center(
-              child: Text(' ${i["name"].toString().substring(0, min(8, i["name"].toString().length))} ',
-                  textScaleFactor: 1.1))
-        else
-          Center(
-              child: Text(' ${i["name"].toString().substring(0, min(7, i["name"].toString().length))}… ',
-                  textScaleFactor: 1.1)),
-        Center(child: Text(' ${i["amount"]} g ', textScaleFactor: 1.1)),
-        Center(child: Text(' ${double.parse(i["calorie"]).toStringAsFixed(1)} kcal ', textScaleFactor: 1.1)),
+        TableCell(
+            verticalAlignment: TableCellVerticalAlignment.middle,
+            child: Center(
+                child: Text(
+                    i["exercise"].toString().length <= 12
+                        ? ' ${i["name"].toString().substring(0, min(12, i["name"].toString().length))} '
+                        : ' ${i["name"].toString().substring(0, min(11, i["name"].toString().length))}… ',
+                    textScaleFactor: 1.1))),
+        TableCell(
+            verticalAlignment: TableCellVerticalAlignment.middle,
+            child: Center(child: Text(' ${i["amount"]} g ', textScaleFactor: 1.1))),
+        TableCell(
+            verticalAlignment: TableCellVerticalAlignment.middle,
+            child: Center(
+                child:
+                    Text(' ${double.parse(i["calorie"]).toStringAsFixed(1)} kcal ', textScaleFactor: 1.1))),
       ];
       _recordsTodayTable.add(TableRow(
         children: children,
@@ -840,13 +854,6 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
   }
 
   Future<void> displayAddFoodRecordPopup(BuildContext context) async {
-    List<Widget> buildItems() {
-      return foodList.map((val) => MySelectionItem(title: val['name'])).toList();
-    }
-
-    String _food = foodList[selectedIndex3]['name'];
-    double _amount = 0;
-
     return showDialog(
         context: context,
         builder: (context) {
@@ -857,33 +864,78 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     const Text('食品'),
-                    Container(
-                        alignment: Alignment.center,
-                        //width: 180,
-                        //height: 30,
+                    Center(
+                        child: Stack(children: <Widget>[
+                      Center(
+                          child: Container(
+                        height: 34,
+                        width: 230,
+                        margin: const EdgeInsets.only(top: 5),
+                        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+                          Text(
+                            exercise.length <= 16 ? food : food.substring(0, 15) + '...',
+                            textScaleFactor: 0.9,
+                            style: const TextStyle(color: Colors.white),
+                          )
+                        ]),
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.blue),
-                          borderRadius: BorderRadius.circular(20),
+                          color: Colors.grey[800],
+                          borderRadius: BorderRadius.circular(4),
+                          boxShadow: const [
+                            BoxShadow(
+                              offset: Offset(0, 0),
+                              blurRadius: 2,
+                              spreadRadius: 2,
+                              color: Colors.black26,
+                            ),
+                          ],
                         ),
-                        margin: const EdgeInsets.only(top: 10, bottom: 10),
-                        child: DirectSelect(
-                          itemExtent: 35.0,
-                          selectedIndex: selectedIndex3,
-                          child: MySelectionItem(
-                            isForList: true,
-                            title: foodList[selectedIndex3]['name'],
-                          ),
-                          onSelectedItemChanged: (index) {
-                            _food = foodList[index!]['name'];
-                            setState(() {
-                              selectedIndex3 = index;
-                            });
-                          },
-                          mode: DirectSelectMode.tap,
-                          items: buildItems(),
-                          backgroundColor: Colors.black,
-                          selectionColor: Colors.white12,
-                        )),
+                      )),
+                      Center(
+                          child: Container(
+                              height: 40,
+                              width: 230,
+                              margin: const EdgeInsets.only(bottom: 10),
+                              child: SmartSelect<String>.single(
+                                  title: '',
+                                  placeholder: '',
+                                  value: '',
+                                  onChange: (value) {
+                                    if (value.value != '') {
+                                      setState(() {
+                                        food = value.value;
+                                      });
+                                      db.rawQuery('UPDATE `options` SET `food` = "$value"');
+                                      value.value = '';
+                                    }
+                                  },
+                                  choiceItems: S2Choice.listFrom<String, Map>(
+                                    source: foodList,
+                                    value: (index, item) => item['name'],
+                                    title: (index, item) => item['name'],
+                                    group: (index, item) => item['group'],
+                                  ),
+                                  modalType: S2ModalType.fullPage,
+                                  choiceGrouped: true,
+                                  modalFilter: true,
+                                  modalFilterAuto: true,
+                                  modalHeaderStyle: S2ModalHeaderStyle(
+                                    backgroundColor: Colors.grey[850],
+                                    textStyle: const TextStyle(color: Colors.white),
+                                    iconTheme: const IconThemeData(color: Colors.white),
+                                    actionsIconTheme: const IconThemeData(color: Colors.white),
+                                  ),
+                                  modalStyle: S2ModalStyle(backgroundColor: Colors.grey[850]),
+                                  choiceStyle: const S2ChoiceStyle(
+                                      titleStyle: TextStyle(color: Colors.white), activeColor: Colors.white),
+                                  tileBuilder: (context, state) {
+                                    return S2Tile.fromState(
+                                      state,
+                                      leading: const Text(''),
+                                      trailing: const Text(''),
+                                    );
+                                  })))
+                    ])),
                     const Text('摂取量'),
                     Center(
                         child: Container(
@@ -893,11 +945,12 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                             margin: const EdgeInsets.only(top: 10, bottom: 10),
                             child: TextFormField(
                               keyboardType: TextInputType.number,
-                              initialValue: _amount.toStringAsFixed(1),
+                              initialValue: amount.toStringAsFixed(1),
                               textAlign: TextAlign.center,
                               maxLines: 1,
                               onChanged: (value) {
-                                _amount = double.parse(value);
+                                amount = double.parse(value);
+                                db.rawQuery('UPDATE `options` SET `amount` = "$value"');
                               },
                               decoration: InputDecoration(
                                 suffix: const Text('[g]'),
@@ -942,36 +995,38 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                   ),
                   child: const Text('保存'),
                   onPressed: () {
-                    audioPlayer.play('hero_simple-celebration-01.wav', volume: volume);
-                    String now =
-                        "${DateTime.now().year} ${DateTime.now().month} ${DateTime.now().day} ${DateTime.now().hour} ${DateTime.now().minute}";
-                    for (var i in foodList) {
-                      if (i['name'] == _food) {
-                        Future(() async {
-                          await db.rawQuery('''
+                    if (food != '' && amount != 0) {
+                      audioPlayer.play('hero_simple-celebration-01.wav', volume: volume);
+                      String now =
+                          "${DateTime.now().year} ${DateTime.now().month} ${DateTime.now().day} ${DateTime.now().hour} ${DateTime.now().minute}";
+                      for (var i in foodList) {
+                        if (i['name'] == food) {
+                          Future(() async {
+                            await db.rawQuery('''
                             INSERT INTO `food_records` 
                             (`time`, `name`, `amount`, `calorie`, `protein`, `fat`, `carb`, `group`) 
-                            VALUES("$now", "${i['name']}", "$_amount", 
-                            "${double.parse(i['calorie']) * _amount / 100}",
-                            "${double.parse(i['protein']) * _amount / 100}",
-                            "${double.parse(i['fat']) * _amount / 100}",
-                            "${double.parse(i['carb']) * _amount / 100}",
+                            VALUES("$now", "${i['name']}", "$amount", 
+                            "${double.parse(i['calorie']) * amount / 100}",
+                            "${double.parse(i['protein']) * amount / 100}",
+                            "${double.parse(i['fat']) * amount / 100}",
+                            "${double.parse(i['carb']) * amount / 100}",
                             "${i['group']}")''');
-                        });
-                        break;
+                          });
+                          break;
+                        }
                       }
+                      db.rawQuery('UPDATE `food` SET `used_time` = `used_time` + 1 WHERE `name` = "$food"');
+                      updateFoodData();
+                      showSimpleNotification(
+                        const Text("保存しました！", style: TextStyle(color: Colors.white)),
+                        background: Colors.green,
+                        position: NotificationPosition.bottom,
+                        slideDismissDirection: DismissDirection.down,
+                      );
+                      setState(() {
+                        Navigator.pop(context);
+                      });
                     }
-                    db.rawQuery('UPDATE `food` SET `used_time` = `used_time` + 1 WHERE `name` = "$_food"');
-                    updateFoodData();
-                    showSimpleNotification(
-                      const Text("保存しました！", style: TextStyle(color: Colors.white)),
-                      background: Colors.green,
-                      position: NotificationPosition.bottom,
-                      slideDismissDirection: DismissDirection.down,
-                    );
-                    setState(() {
-                      Navigator.pop(context);
-                    });
                   },
                 ),
               ],
