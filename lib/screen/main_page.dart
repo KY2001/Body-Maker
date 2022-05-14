@@ -86,12 +86,14 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                             defaultColumnWidth: const IntrinsicColumnWidth(),
                             children: exerciseRecordsTodayTable),
                       ),
-                      const Text.rich(TextSpan(
-                        style: TextStyle(fontSize: 21),
+                      Text.rich(TextSpan(
+                        style: const TextStyle(fontSize: 21),
                         children: [
-                          TextSpan(text: "消費カロリー: "),
-                          TextSpan(text: "to do", style: TextStyle(fontWeight: FontWeight.bold)),
-                          TextSpan(text: " [kcal]"),
+                          const TextSpan(text: "消費カロリー: "),
+                          TextSpan(
+                              text: exerciseCalorie.toStringAsFixed(0),
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                          const TextSpan(text: " [kcal]"),
                         ],
                       )),
                       Text.rich(TextSpan(
@@ -99,7 +101,7 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                         children: [
                           const TextSpan(text: "総負荷量: "),
                           TextSpan(
-                              text: "${scoreToday.toInt()}",
+                              text: "${exerciseVolume.toInt()}",
                               style: const TextStyle(fontWeight: FontWeight.bold)),
                           const TextSpan(text: " [kg・rep・set]"),
                         ],
@@ -241,7 +243,7 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                             );
                           } else {
                             audioPlayer.play('ui_tap-variant-01.wav', volume: volume);
-                            displayAddFoodRecordPopup(context);
+                            displayAddFoodRecordPopup(context).then((value) => Navigator.pop(context));
                           }
                         },
                         enableFeedback: false,
@@ -268,7 +270,7 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
         Center(child: Text(' 種目 ')),
         Center(child: Text(' 重量 ')),
         Center(child: Text(' 回数 ')),
-        Center(child: Text(' セット数 ')),
+        Center(child: Text(' セット数 ', textScaleFactor: 0.9)),
       ])
     ];
 
@@ -291,24 +293,35 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
         TableCell(
             verticalAlignment: TableCellVerticalAlignment.middle,
             child: Center(
-                child: Text(' ${double.parse(i["weight"]).toStringAsFixed(1)} ', textScaleFactor: 1.1))),
+                child: Text(
+                    ' ${double.parse(i["weight"]) - double.parse(i["weight"]).round() == 0 ? double.parse(i["weight"]).round() : double.parse(i["weight"]).toStringAsFixed(1)} ',
+                    textScaleFactor: 1.1))),
         TableCell(
             verticalAlignment: TableCellVerticalAlignment.middle,
-            child: Center(child: Text(' ${i["rep"]} ', textScaleFactor: 1.1))),
+            child: Center(child: Text(' ${double.parse(i["rep"]).round()} ', textScaleFactor: 1.1))),
         TableCell(
             verticalAlignment: TableCellVerticalAlignment.middle,
-            child: Center(child: Text(' ${i["set"]} ', textScaleFactor: 1.1))),
+            child: Center(child: Text(' ${double.parse(i["set"]).round()} ', textScaleFactor: 1.1))),
       ];
       _recordsTodayTable.add(TableRow(
         children: children,
       ));
     }
     setState(() => exerciseRecordsTodayTable = _recordsTodayTable);
-    scoreToday = 0;
+    exerciseVolume = 0;
     for (var i in recordsToday) {
-      scoreToday += (double.parse(i['weight'].toString()) *
+      exerciseVolume += (double.parse(i['weight'].toString()) *
           double.parse(i['rep'].toString()) *
           double.parse(i['set'].toString()));
+    }
+    exerciseCalorie = 0;
+    if (recordsToday.length > 1) {
+      double _minute = 60 *
+          (double.parse(timeDisAssemble(recordsToday.last['time'])['hour']!) -
+              double.parse(timeDisAssemble(recordsToday.first['time'])['hour']!));
+      _minute += double.parse(timeDisAssemble(recordsToday.last['time'])['minute']!) -
+          double.parse(timeDisAssemble(recordsToday.first['time'])['minute']!);
+      exerciseCalorie = 100 / 30 * _minute;
     }
   }
 
@@ -317,8 +330,8 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
     List<TableRow> _recordsTodayTable = [
       const TableRow(children: [
         Center(child: Text(' 食品名 ')),
-        Center(child: Text(' カロリー ')),
         Center(child: Text(' 摂取量 ')),
+        Center(child: Text(' カロリー ')),
       ])
     ];
 
@@ -337,12 +350,10 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                     textScaleFactor: 1.1))),
         TableCell(
             verticalAlignment: TableCellVerticalAlignment.middle,
-            child: Center(child: Text(' ${i["amount"]} g ', textScaleFactor: 1.1))),
+            child: Center(child: Text(' ${double.parse(i["amount"]).round()} g ', textScaleFactor: 1.1))),
         TableCell(
             verticalAlignment: TableCellVerticalAlignment.middle,
-            child: Center(
-                child:
-                    Text(' ${double.parse(i["calorie"]).toStringAsFixed(1)} kcal ', textScaleFactor: 1.1))),
+            child: Center(child: Text(' ${double.parse(i["calorie"]).round()} kcal ', textScaleFactor: 1.1))),
       ];
       _recordsTodayTable.add(TableRow(
         children: children,
@@ -436,6 +447,7 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                                       setState(() {
                                         exercise = value.value;
                                       });
+                                      db.rawQuery('UPDATE `options` SET `exercise` = "${value.value}"');
                                       value.value = '';
                                     }
                                   },
@@ -583,7 +595,9 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                               ),
                               onPressed: () {
                                 audioPlayer.play('ui_tap-variant-01.wav', volume: volume);
-                                Navigator.of(context).pushNamed("/addExercisePage");
+                                Navigator.of(context)
+                                    .pushNamed("/addExercisePage")
+                                    .then((value) => Navigator.pop(context));
                               },
                             ))),
                     Center(
@@ -602,7 +616,8 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                               ),
                               onPressed: () {
                                 audioPlayer.play('ui_tap-variant-01.wav', volume: volume);
-                                displayManualAddExercisePopup(context);
+                                displayManualAddExercisePopup(context)
+                                    .then((value) => Navigator.pop(context));
                               },
                             ))),
                     Center(
@@ -905,7 +920,7 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                                       setState(() {
                                         food = value.value;
                                       });
-                                      db.rawQuery('UPDATE `options` SET `food` = "$value"');
+                                      db.rawQuery('UPDATE `options` SET `food` = "${value.value}"');
                                       value.value = '';
                                     }
                                   },

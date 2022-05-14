@@ -10,12 +10,14 @@ Future<void> getDatabase() async {
 }
 
 Future<void> initDatabase() async {
+  /*
   await db.rawQuery('DROP TABLE IF EXISTS `exercise_records`');
   await db.rawQuery('DROP TABLE IF EXISTS `food_records`');
   await db.rawQuery('DROP TABLE IF EXISTS `records`');
   await db.rawQuery('DROP TABLE IF EXISTS `options`');
   await db.rawQuery('DROP TABLE IF EXISTS `exercise`');
   await db.rawQuery('DROP TABLE IF EXISTS `food`');
+  */
   await db.rawQuery(''' 
   CREATE TABLE IF NOT EXISTS `exercise_records` (
   `id` INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -101,7 +103,7 @@ Future<void> initDatabase() async {
     amount = double.parse(value['amount']);
   });
   await db.rawQuery('SELECT * FROM `food`').then((value) {
-    for (var i in value){
+    for (var i in value) {
       foodList.add(i);
     }
   });
