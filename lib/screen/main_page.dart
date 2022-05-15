@@ -17,12 +17,10 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this, initialIndex: 0);
     Future(() async {
       await getDatabase();
       await initDatabase();
@@ -43,8 +41,7 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  const Icon(Icons.fitness_center),
-                  const Text("トレーニングメモ", textScaleFactor: 1.1),
+                  const Text("アプリ名", textScaleFactor: 1.1),
                   const Spacer(),
                   ElevatedButton.icon(
                     icon: const Icon(
@@ -64,88 +61,102 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                   ),
                 ],
               ),
-              bottom: TabBar(
-                controller: _tabController,
-                tabs: const [Tab(child: Text("トレーニング")), Tab(child: Text("食事"))],
-              ),
             ),
-            body: TabBarView(
-              controller: _tabController,
-              children: [
-                SingleChildScrollView(
+            body: bottomBarIndex == 0
+                ? SingleChildScrollView(
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
-                      const Text("本日のトレーニング", textScaleFactor: 1.4),
-                      Container(
-                        alignment: Alignment.center,
-                        padding: const EdgeInsets.all(20.0),
-                        child: Table(
-                            border: TableBorder.all(color: Colors.black),
-                            defaultColumnWidth: const IntrinsicColumnWidth(),
-                            children: exerciseRecordsTodayTable),
-                      ),
-                      Text.rich(TextSpan(
-                        style: const TextStyle(fontSize: 21),
-                        children: [
-                          const TextSpan(text: "消費カロリー: "),
-                          TextSpan(
-                              text: exerciseCalorie.toStringAsFixed(0),
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                          const TextSpan(text: " [kcal]"),
-                        ],
-                      )),
-                      Text.rich(TextSpan(
-                        style: const TextStyle(fontSize: 21),
-                        children: [
-                          const TextSpan(text: "総負荷量: "),
-                          TextSpan(
-                              text: "${exerciseVolume.toInt()}",
-                              style: const TextStyle(fontWeight: FontWeight.bold)),
-                          const TextSpan(text: " [kg・rep・set]"),
-                        ],
-                      )),
-                      const SizedBox(height: 300),
-                    ])),
-                SingleChildScrollView(
+                        const Text("本日のトレーニング", textScaleFactor: 1.4),
+                        Container(
+                          alignment: Alignment.center,
+                          padding: const EdgeInsets.all(20.0),
+                          child: Table(
+                              border: TableBorder.all(color: Colors.black),
+                              defaultColumnWidth: const IntrinsicColumnWidth(),
+                              children: exerciseRecordsTodayTable),
+                        ),
+                        Text.rich(TextSpan(
+                          style: const TextStyle(fontSize: 21),
+                          children: [
+                            const TextSpan(text: "消費カロリー: "),
+                            TextSpan(
+                                text: exerciseCalorie.toStringAsFixed(0),
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            const TextSpan(text: " [kcal]"),
+                          ],
+                        )),
+                        Text.rich(TextSpan(
+                          style: const TextStyle(fontSize: 21),
+                          children: [
+                            const TextSpan(text: "総負荷量: "),
+                            TextSpan(
+                                text: "${exerciseVolume.toInt()}",
+                                style: const TextStyle(fontWeight: FontWeight.bold)),
+                            const TextSpan(text: " [kg・rep・set]"),
+                          ],
+                        )),
+                        const SizedBox(height: 300),
+                      ]))
+                : SingleChildScrollView(
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
-                      const Text("本日の食事", textScaleFactor: 1.4),
-                      Container(
-                        alignment: Alignment.center,
-                        padding: const EdgeInsets.all(20.0),
-                        child: Table(
-                            border: TableBorder.all(color: Colors.black),
-                            defaultColumnWidth: const IntrinsicColumnWidth(),
-                            children: foodRecordsTodayTable),
-                      ),
-                      Text.rich(TextSpan(
-                        style: const TextStyle(fontSize: 21),
-                        children: [
-                          const TextSpan(text: "摂取カロリー: "),
-                          TextSpan(
-                              text: "${calorieToday.toInt()}",
-                              style: const TextStyle(fontWeight: FontWeight.bold)),
-                          const TextSpan(text: " [kcal]"),
-                        ],
-                      )),
-                      Text.rich(TextSpan(
-                        style: const TextStyle(fontSize: 21),
-                        children: [
-                          const TextSpan(text: "PFCバランス: "),
-                          TextSpan(
-                              text: "${pfcBalance[0]}:${pfcBalance[1]}:${pfcBalance[2]}",
-                              style: const TextStyle(fontWeight: FontWeight.bold)),
-                        ],
-                      )),
-                      const SizedBox(height: 300),
-                    ])),
+                          const Text("本日の食事", textScaleFactor: 1.4),
+                          Container(
+                            alignment: Alignment.center,
+                            padding: const EdgeInsets.all(20.0),
+                            child: Table(
+                                border: TableBorder.all(color: Colors.black),
+                                defaultColumnWidth: const IntrinsicColumnWidth(),
+                                children: foodRecordsTodayTable),
+                          ),
+                          Text.rich(TextSpan(
+                            style: const TextStyle(fontSize: 21),
+                            children: [
+                              const TextSpan(text: "摂取カロリー: "),
+                              TextSpan(
+                                  text: "${calorieToday.toInt()}",
+                                  style: const TextStyle(fontWeight: FontWeight.bold)),
+                              const TextSpan(text: " [kcal]"),
+                            ],
+                          )),
+                          Text.rich(TextSpan(
+                            style: const TextStyle(fontSize: 21),
+                            children: [
+                              const TextSpan(text: "PFCバランス: "),
+                              TextSpan(
+                                  text: "${pfcBalance[0]}:${pfcBalance[1]}:${pfcBalance[2]}",
+                                  style: const TextStyle(fontWeight: FontWeight.bold)),
+                            ],
+                          )),
+                          const SizedBox(height: 300),
+                        ]),
+                  ),
+            bottomNavigationBar: BottomNavigationBar(
+              items: const <BottomNavigationBarItem>[
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.restaurant),
+                  label: '食事',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.fitness_center),
+                  label: 'トレーニング',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.show_chart),
+                  label: '分析',
+                ),
               ],
+              currentIndex: bottomBarIndex,
+              selectedItemColor: Colors.amber[800],
+              onTap: (value) {
+                bottomBarIndex = value;
+              },
             ),
-            floatingActionButton: _tabController.index == 0
+            floatingActionButton: bottomBarIndex == 0
                 ? Column(mainAxisSize: MainAxisSize.min, children: [
                     Padding(
                         padding: const EdgeInsets.only(bottom: 5),
