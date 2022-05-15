@@ -5,11 +5,12 @@ import 'screen/main_page.dart';
 import 'screen/options.dart';
 import 'screen/add_exercise.dart';
 import 'screen/add_food.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 void main() {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  runApp(const MyApp());
+  initializeDateFormatting().then((_) => runApp(const MyApp()));
 }
 
 class MyApp extends StatelessWidget {

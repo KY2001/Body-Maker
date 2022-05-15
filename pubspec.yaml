@@ -23,6 +23,8 @@ dependencies:
   direct_select: ^2.0.0
   sticky_headers: ^0.2.0
   flutter_native_splash: ^2.1.6
+  table_calendar: ^3.0.5
+  intl: ^0.17.0
 
 dev_dependencies:
   flutter_test:

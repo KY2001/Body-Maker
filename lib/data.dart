@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 String dbName = "/training_memo.db";
 AudioCache audioPlayer = AudioCache(prefix: 'assets/sounds/');
@@ -28,6 +29,11 @@ double minSet = 1;
 double maxSet = 10;
 double calorieToday = 0;
 List<int> pfcBalance = [0, 0, 0];
+CalendarFormat calendarFormat = CalendarFormat.month;
+DateTime focusedDay = DateTime.now();
+DateTime? selectedDay;
+DateTime firstDay = DateTime.now();
+DateTime lastDay = DateTime.now();
 
 Map<String, List<Map<String, dynamic>>> exerciseSearchList = {
   'chest': [

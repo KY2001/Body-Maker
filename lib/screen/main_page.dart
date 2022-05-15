@@ -5,9 +5,10 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:overlay_support/overlay_support.dart';
 import '../module.dart';
 import '../database.dart';
-import 'package:smart_select/smart_select.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:training_app/data.dart';
+import 'package:smart_select/smart_select.dart';
+import 'package:table_calendar/table_calendar.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -17,7 +18,6 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin {
-
   @override
   void initState() {
     super.initState();
@@ -37,240 +37,278 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
     return DefaultTabController(
         length: 2,
         child: Scaffold(
-            appBar: AppBar(
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const Text("アプリ名", textScaleFactor: 1.1),
-                  const Spacer(),
-                  ElevatedButton.icon(
-                    icon: const Icon(
-                      Icons.settings,
-                      color: Colors.white,
-                    ),
-                    label: const Text('設定', textScaleFactor: 1.2),
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.green,
-                      onPrimary: Colors.white,
-                      enableFeedback: false,
-                    ),
-                    onPressed: () {
-                      audioPlayer.play('ui_tap-variant-01.wav', volume: volume);
-                      Navigator.of(context).pushNamed("/optionalPage");
-                    },
+          appBar: AppBar(
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                const Text("アプリ名", textScaleFactor: 1.1),
+                const Spacer(),
+                ElevatedButton.icon(
+                  icon: const Icon(
+                    Icons.settings,
+                    color: Colors.white,
                   ),
-                ],
-              ),
-            ),
-            body: bottomBarIndex == 0
-                ? SingleChildScrollView(
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                        const Text("本日のトレーニング", textScaleFactor: 1.4),
-                        Container(
-                          alignment: Alignment.center,
-                          padding: const EdgeInsets.all(20.0),
-                          child: Table(
-                              border: TableBorder.all(color: Colors.black),
-                              defaultColumnWidth: const IntrinsicColumnWidth(),
-                              children: exerciseRecordsTodayTable),
-                        ),
-                        Text.rich(TextSpan(
-                          style: const TextStyle(fontSize: 21),
-                          children: [
-                            const TextSpan(text: "消費カロリー: "),
-                            TextSpan(
-                                text: exerciseCalorie.toStringAsFixed(0),
-                                style: TextStyle(fontWeight: FontWeight.bold)),
-                            const TextSpan(text: " [kcal]"),
-                          ],
-                        )),
-                        Text.rich(TextSpan(
-                          style: const TextStyle(fontSize: 21),
-                          children: [
-                            const TextSpan(text: "総負荷量: "),
-                            TextSpan(
-                                text: "${exerciseVolume.toInt()}",
-                                style: const TextStyle(fontWeight: FontWeight.bold)),
-                            const TextSpan(text: " [kg・rep・set]"),
-                          ],
-                        )),
-                        const SizedBox(height: 300),
-                      ]))
-                : SingleChildScrollView(
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          const Text("本日の食事", textScaleFactor: 1.4),
-                          Container(
-                            alignment: Alignment.center,
-                            padding: const EdgeInsets.all(20.0),
-                            child: Table(
-                                border: TableBorder.all(color: Colors.black),
-                                defaultColumnWidth: const IntrinsicColumnWidth(),
-                                children: foodRecordsTodayTable),
-                          ),
-                          Text.rich(TextSpan(
-                            style: const TextStyle(fontSize: 21),
-                            children: [
-                              const TextSpan(text: "摂取カロリー: "),
-                              TextSpan(
-                                  text: "${calorieToday.toInt()}",
-                                  style: const TextStyle(fontWeight: FontWeight.bold)),
-                              const TextSpan(text: " [kcal]"),
-                            ],
-                          )),
-                          Text.rich(TextSpan(
-                            style: const TextStyle(fontSize: 21),
-                            children: [
-                              const TextSpan(text: "PFCバランス: "),
-                              TextSpan(
-                                  text: "${pfcBalance[0]}:${pfcBalance[1]}:${pfcBalance[2]}",
-                                  style: const TextStyle(fontWeight: FontWeight.bold)),
-                            ],
-                          )),
-                          const SizedBox(height: 300),
-                        ]),
+                  label: const Text('設定', textScaleFactor: 1.2),
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.green,
+                    onPrimary: Colors.white,
+                    enableFeedback: false,
                   ),
-            bottomNavigationBar: BottomNavigationBar(
-              items: const <BottomNavigationBarItem>[
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.restaurant),
-                  label: '食事',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.fitness_center),
-                  label: 'トレーニング',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.show_chart),
-                  label: '分析',
+                  onPressed: () {
+                    audioPlayer.play('ui_tap-variant-01.wav', volume: volume);
+                    Navigator.of(context).pushNamed("/optionalPage");
+                  },
                 ),
               ],
-              currentIndex: bottomBarIndex,
-              selectedItemColor: Colors.amber[800],
-              onTap: (value) {
-                bottomBarIndex = value;
-              },
             ),
-            floatingActionButton: bottomBarIndex == 0
-                ? Column(mainAxisSize: MainAxisSize.min, children: [
-                    Padding(
-                        padding: const EdgeInsets.only(bottom: 5),
-                        child: SizedBox(
-                          width: 150,
-                          height: 90,
-                          child: FloatingActionButton.extended(
-                            heroTag: "hero1",
-                            onPressed: () {
-                              audioPlayer.play('ui_tap-variant-01.wav', volume: volume);
-                              displayEditExercisePopup(context);
-                            },
-                            enableFeedback: false,
-                            foregroundColor: Colors.white,
-                            backgroundColor: Colors.green,
-                            isExtended: true,
-                            label: const Text(
-                              '種目の編集',
-                              style: TextStyle(
-                                fontSize: 16,
-                              ),
-                            ),
-                            icon: const Icon(Icons.edit),
-                          ),
-                        )),
-                    SizedBox(
+          ),
+          body: (() {
+            if (bottomBarIndex == 0) {
+              return SingleChildScrollView(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      const Text("本日の食事", textScaleFactor: 1.4),
+                      Container(
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.all(20.0),
+                        child: Table(
+                            border: TableBorder.all(color: Colors.black),
+                            defaultColumnWidth: const IntrinsicColumnWidth(),
+                            children: foodRecordsTodayTable),
+                      ),
+                      Text.rich(TextSpan(
+                        style: const TextStyle(fontSize: 21),
+                        children: [
+                          const TextSpan(text: "摂取カロリー: "),
+                          TextSpan(
+                              text: "${calorieToday.toInt()}",
+                              style: const TextStyle(fontWeight: FontWeight.bold)),
+                          const TextSpan(text: " [kcal]"),
+                        ],
+                      )),
+                      Text.rich(TextSpan(
+                        style: const TextStyle(fontSize: 21),
+                        children: [
+                          const TextSpan(text: "PFCバランス: "),
+                          TextSpan(
+                              text: "${pfcBalance[0]}:${pfcBalance[1]}:${pfcBalance[2]}",
+                              style: const TextStyle(fontWeight: FontWeight.bold)),
+                        ],
+                      )),
+                      const SizedBox(height: 300),
+                    ]),
+              );
+            } else if (bottomBarIndex == 1) {
+              return SingleChildScrollView(
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                    const Text("本日のトレーニング", textScaleFactor: 1.4),
+                    Container(
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.all(20.0),
+                      child: Table(
+                          border: TableBorder.all(color: Colors.black),
+                          defaultColumnWidth: const IntrinsicColumnWidth(),
+                          children: exerciseRecordsTodayTable),
+                    ),
+                    Text.rich(TextSpan(
+                      style: const TextStyle(fontSize: 21),
+                      children: [
+                        const TextSpan(text: "消費カロリー: "),
+                        TextSpan(
+                            text: exerciseCalorie.toStringAsFixed(0),
+                            style: const TextStyle(fontWeight: FontWeight.bold)),
+                        const TextSpan(text: " [kcal]"),
+                      ],
+                    )),
+                    Text.rich(TextSpan(
+                      style: const TextStyle(fontSize: 21),
+                      children: [
+                        const TextSpan(text: "総負荷量: "),
+                        TextSpan(
+                            text: "${exerciseVolume.toInt()}",
+                            style: const TextStyle(fontWeight: FontWeight.bold)),
+                        const TextSpan(text: " [kg・rep・set]"),
+                      ],
+                    )),
+                    const SizedBox(height: 300),
+                  ]));
+            } else if (bottomBarIndex == 2) {
+              firstDay = DateTime(DateTime.now().year);
+              return TableCalendar(
+                  locale: 'ja_JP',
+                  weekendDays: const [],
+                  startingDayOfWeek: StartingDayOfWeek.monday,
+                  firstDay: firstDay,
+                  lastDay: lastDay,
+                  focusedDay: focusedDay,
+                  calendarFormat: calendarFormat,
+                  selectedDayPredicate: (day) {
+                    return isSameDay(selectedDay, day);
+                  },
+                  onDaySelected: (_selectedDay, _focusedDay) {
+                    if (!isSameDay(selectedDay, _selectedDay)) {
+                      setState(() {
+                        selectedDay = _selectedDay;
+                        focusedDay = _focusedDay;
+                      });
+                    }
+                  },
+                  onFormatChanged: (format) {
+                    if (calendarFormat != format) {
+                      calendarFormat = format;
+                    }
+                  },
+                  onPageChanged: (_focusedDay) {
+                    focusedDay = _focusedDay;
+                  });
+            }
+          })(),
+          bottomNavigationBar: BottomNavigationBar(
+            items: const <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: Icon(Icons.restaurant),
+                label: '食事',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.fitness_center),
+                label: 'トレーニング',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.show_chart),
+                label: '分析',
+              ),
+            ],
+            currentIndex: bottomBarIndex,
+            selectedItemColor: Colors.amber[800],
+            onTap: (value) {
+              bottomBarIndex = value;
+            },
+          ),
+          floatingActionButton: (() {
+            if (bottomBarIndex == 0) {
+              return Column(mainAxisSize: MainAxisSize.min, children: [
+                Padding(
+                    padding: const EdgeInsets.only(bottom: 5),
+                    child: SizedBox(
                       width: 150,
                       height: 90,
                       child: FloatingActionButton.extended(
-                        heroTag: "hero2",
+                        heroTag: "hero1",
                         onPressed: () {
-                          if (exerciseList.isEmpty) {
-                            showSimpleNotification(
-                              const Text("編集ボタンから種目を追加して下さい！", style: TextStyle(color: Colors.white)),
-                              background: Colors.red,
-                              position: NotificationPosition.bottom,
-                              slideDismissDirection: DismissDirection.down,
-                            );
-                          } else {
-                            audioPlayer.play('ui_tap-variant-01.wav', volume: volume);
-                            displayAddExerciseRecordPopup(context);
-                          }
+                          audioPlayer.play('ui_tap-variant-01.wav', volume: volume);
+                          displayEditFoodPopup(context);
                         },
                         enableFeedback: false,
                         foregroundColor: Colors.white,
-                        backgroundColor: Colors.pink,
+                        backgroundColor: Colors.green,
                         isExtended: true,
                         label: const Text(
-                          '記録する',
+                          '食事の編集',
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 16,
                           ),
                         ),
-                        icon: const Icon(Icons.done),
+                        icon: const Icon(Icons.edit),
+                      ),
+                    )),
+                SizedBox(
+                  width: 150,
+                  height: 90,
+                  child: FloatingActionButton.extended(
+                    heroTag: "hero2",
+                    onPressed: () {
+                      if (foodList.isEmpty) {
+                        showSimpleNotification(
+                          const Text("編集ボタンから食事を追加して下さい！", style: TextStyle(color: Colors.white)),
+                          background: Colors.red,
+                          position: NotificationPosition.bottom,
+                          slideDismissDirection: DismissDirection.down,
+                        );
+                      } else {
+                        audioPlayer.play('ui_tap-variant-01.wav', volume: volume);
+                        displayAddFoodRecordPopup(context).then((value) => Navigator.pop(context));
+                      }
+                    },
+                    enableFeedback: false,
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.pink,
+                    isExtended: true,
+                    label: const Text(
+                      '記録する',
+                      style: TextStyle(
+                        fontSize: 18,
                       ),
                     ),
-                  ])
-                : Column(mainAxisSize: MainAxisSize.min, children: [
-                    Padding(
-                        padding: const EdgeInsets.only(bottom: 5),
-                        child: SizedBox(
-                          width: 150,
-                          height: 90,
-                          child: FloatingActionButton.extended(
-                            heroTag: "hero1",
-                            onPressed: () {
-                              audioPlayer.play('ui_tap-variant-01.wav', volume: volume);
-                              displayEditFoodPopup(context);
-                            },
-                            enableFeedback: false,
-                            foregroundColor: Colors.white,
-                            backgroundColor: Colors.green,
-                            isExtended: true,
-                            label: const Text(
-                              '食事の編集',
-                              style: TextStyle(
-                                fontSize: 16,
-                              ),
-                            ),
-                            icon: const Icon(Icons.edit),
-                          ),
-                        )),
-                    SizedBox(
+                    icon: const Icon(Icons.done),
+                  ),
+                ),
+              ]);
+            } else if (bottomBarIndex == 1) {
+              return Column(mainAxisSize: MainAxisSize.min, children: [
+                Padding(
+                    padding: const EdgeInsets.only(bottom: 5),
+                    child: SizedBox(
                       width: 150,
                       height: 90,
                       child: FloatingActionButton.extended(
-                        heroTag: "hero2",
+                        heroTag: "hero1",
                         onPressed: () {
-                          if (foodList.isEmpty) {
-                            showSimpleNotification(
-                              const Text("編集ボタンから食事を追加して下さい！", style: TextStyle(color: Colors.white)),
-                              background: Colors.red,
-                              position: NotificationPosition.bottom,
-                              slideDismissDirection: DismissDirection.down,
-                            );
-                          } else {
-                            audioPlayer.play('ui_tap-variant-01.wav', volume: volume);
-                            displayAddFoodRecordPopup(context).then((value) => Navigator.pop(context));
-                          }
+                          audioPlayer.play('ui_tap-variant-01.wav', volume: volume);
+                          displayEditExercisePopup(context);
                         },
                         enableFeedback: false,
                         foregroundColor: Colors.white,
-                        backgroundColor: Colors.pink,
+                        backgroundColor: Colors.green,
                         isExtended: true,
                         label: const Text(
-                          '記録する',
+                          '種目の編集',
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 16,
                           ),
                         ),
-                        icon: const Icon(Icons.done),
+                        icon: const Icon(Icons.edit),
+                      ),
+                    )),
+                SizedBox(
+                  width: 150,
+                  height: 90,
+                  child: FloatingActionButton.extended(
+                    heroTag: "hero2",
+                    onPressed: () {
+                      if (exerciseList.isEmpty) {
+                        showSimpleNotification(
+                          const Text("編集ボタンから種目を追加して下さい！", style: TextStyle(color: Colors.white)),
+                          background: Colors.red,
+                          position: NotificationPosition.bottom,
+                          slideDismissDirection: DismissDirection.down,
+                        );
+                      } else {
+                        audioPlayer.play('ui_tap-variant-01.wav', volume: volume);
+                        displayAddExerciseRecordPopup(context);
+                      }
+                    },
+                    enableFeedback: false,
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.pink,
+                    isExtended: true,
+                    label: const Text(
+                      '記録する',
+                      style: TextStyle(
+                        fontSize: 18,
                       ),
                     ),
-                  ])));
+                    icon: const Icon(Icons.done),
+                  ),
+                ),
+              ]);
+            }
+          })(),
+        ));
   }
 
   Future<void> updateExerciseData() async {

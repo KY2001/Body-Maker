@@ -1,8 +1,10 @@
+import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:training_app/data.dart';
+import 'package:training_app/module.dart';
 
 Future<void> getDatabase() async {
   String path = (await getDatabasesPath()) + dbName;
@@ -106,5 +108,19 @@ Future<void> initDatabase() async {
     for (var i in value) {
       foodList.add(i);
     }
+  });
+  await db.rawQuery('SELECT MIN(`time`) as min FROM `exercise_records`').then((value) {
+    value = value[0]['min'];
+    firstDay = DateTime(int.parse(timeDisAssemble(value)['year']!),
+        int.parse(timeDisAssemble(value)['month']!), int.parse(timeDisAssemble(value)['day']!));
+  });
+  await db.rawQuery('SELECT MIN(`time`) as min FROM `food_records`').then((value) {
+    value = value[0]['min'];
+    firstDay = DateTime(int.parse(timeDisAssemble(value)['year']!),
+                int.parse(timeDisAssemble(value)['month']!), int.parse(timeDisAssemble(value)['day']!))
+            .isBefore(firstDay)
+        ? DateTime(int.parse(timeDisAssemble(value)['year']!), int.parse(timeDisAssemble(value)['month']!),
+            int.parse(timeDisAssemble(value)['day']!))
+        : firstDay;
   });
 }
