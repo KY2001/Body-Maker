@@ -146,7 +146,15 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                   firstDay: firstDay,
                   lastDay: lastDay,
                   focusedDay: focusedDay,
+                  eventLoader: (DateTime day) {
+                    List<Event> ret = [const Event('a')];
+                    return ret;
+                  },
                   calendarFormat: calendarFormat,
+                  calendarStyle: const CalendarStyle(
+                      isTodayHighlighted: false,
+                      outsideDaysVisible: false,
+                      markerDecoration: BoxDecoration(color: Colors.white)),
                   selectedDayPredicate: (day) {
                     return isSameDay(selectedDay, day);
                   },
