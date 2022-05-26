@@ -239,7 +239,7 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                         );
                       } else {
                         audioPlayer.play('ui_tap-variant-01.wav', volume: volume);
-                        displayAddFoodRecordPopup(context).then((value) => Navigator.pop(context));
+                        displayAddFoodRecordPopup(context);
                       }
                     },
                     enableFeedback: false,
