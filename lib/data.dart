@@ -34,8 +34,8 @@ DateTime focusedDay = DateTime.now();
 DateTime? selectedDay;
 DateTime firstDay = DateTime.now();
 DateTime lastDay = DateTime.now();
-Map<DateTime, List<Map<String, String>>> exerciseRecords = {};
-Map<DateTime, List<Map<String, String>>> foodRecords = {};
+List<Map<String, dynamic>>? exerciseRecords;
+List<Map<String, dynamic>>? foodRecords;
 
 class Event {
   final String title;

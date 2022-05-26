@@ -147,7 +147,15 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                   lastDay: lastDay,
                   focusedDay: focusedDay,
                   eventLoader: (DateTime day) {
-                    List<Event> ret = [const Event('a')];
+                    List<Event> ret = [];
+                    for (var i in foodRecords!) {
+                      var temp = i["time"].split(' ');
+                      if (temp[0] == day.year.toString() &&
+                          temp[1] == day.month.toString() &&
+                          temp[2] == day.day.toString()) {
+                        ret.add(const Event("temp"));
+                      }
+                    }
                     return ret;
                   },
                   calendarFormat: calendarFormat,

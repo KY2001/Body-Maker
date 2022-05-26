@@ -123,4 +123,10 @@ Future<void> initDatabase() async {
             int.parse(timeDisAssemble(value)['day']!))
         : firstDay;
   });
+  await db.rawQuery('SELECT * FROM `exercise_records`').then((value) {
+    exerciseRecords = value;
+  });
+  await db.rawQuery('SELECT * FROM `food_records`').then((value) {
+    foodRecords = value;
+  });
 }
