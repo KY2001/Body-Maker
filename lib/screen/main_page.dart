@@ -138,7 +138,6 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                     const SizedBox(height: 300),
                   ]));
             } else if (bottomBarIndex == 2) {
-              firstDay = DateTime(DateTime.now().year);
               return TableCalendar(
                   locale: 'ja_JP',
                   weekendDays: const [],
@@ -149,11 +148,9 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                   eventLoader: (DateTime day) {
                     List<Event> ret = [];
                     for (var i in foodRecords!) {
-                      var temp = i["time"].split(' ');
-                      if (temp[0] == day.year.toString() &&
-                          temp[1] == day.month.toString() &&
-                          temp[2] == day.day.toString()) {
-                        ret.add(const Event("temp"));
+                      DateTime recordTime = timeDisAssemble2(i['time']);
+                      if (recordTime.isSameDate(day)) {
+                        ret.add(const Event('temp'));
                       }
                     }
                     return ret;
@@ -327,6 +324,57 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
         ));
   }
 
+  Future<void> updateFoodData() async {
+    if (db == '') await getDatabase();
+    List<TableRow> _recordsTodayTable = [
+      const TableRow(children: [
+        Center(child: Text(' 食品名 ')),
+        Center(child: Text(' 摂取量 ')),
+        Center(child: Text(' カロリー ')),
+      ])
+    ];
+
+    List<Map> recordsToday = await db.rawQuery(
+        'SELECT * FROM `food_records` WHERE `time` LIKE "${DateTime.now().year} ${DateTime.now().month} ${DateTime.now().day}%"');
+    for (var i in recordsToday) {
+      List<Widget> children = [
+        // Center(child: Text(' ${timeDisAssemble(i["time"])['hour:minute']} ', textScaleFactor: 1.1)),
+        TableCell(
+            verticalAlignment: TableCellVerticalAlignment.middle,
+            child: Center(
+                child: Text(
+                    i["exercise"].toString().length <= 12
+                        ? ' ${i["name"].toString().substring(0, min(12, i["name"].toString().length))} '
+                        : ' ${i["name"].toString().substring(0, min(11, i["name"].toString().length))}… ',
+                    textScaleFactor: 1.1))),
+        TableCell(
+            verticalAlignment: TableCellVerticalAlignment.middle,
+            child: Center(child: Text(' ${double.parse(i["amount"]).round()} g ', textScaleFactor: 1.1))),
+        TableCell(
+            verticalAlignment: TableCellVerticalAlignment.middle,
+            child: Center(child: Text(' ${double.parse(i["calorie"]).round()} kcal ', textScaleFactor: 1.1))),
+      ];
+      _recordsTodayTable.add(TableRow(
+        children: children,
+      ));
+    }
+    setState(() => foodRecordsTodayTable = _recordsTodayTable);
+    calorieToday = 0;
+    for (var i in recordsToday) {
+      calorieToday += double.parse(i['calorie'].toString());
+    }
+    List<double> _pfcBalance = [0, 0, 0];
+    for (var i in recordsToday) {
+      _pfcBalance[0] += double.parse(i['protein']);
+      _pfcBalance[1] += double.parse(i['fat']);
+      _pfcBalance[2] += double.parse(i['carb']);
+    }
+    double _pfcSum = _pfcBalance.reduce((a, b) => a + b);
+    for (var i = 0; i < 3; i++) {
+      pfcBalance[i] = _pfcSum == 0 ? 0 : (_pfcBalance[i] / _pfcSum * 10).round();
+    }
+  }
+
   Future<void> updateExerciseData() async {
     if (db == '') await getDatabase();
     List<TableRow> _recordsTodayTable = [
@@ -390,55 +438,185 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
     }
   }
 
-  Future<void> updateFoodData() async {
-    if (db == '') await getDatabase();
-    List<TableRow> _recordsTodayTable = [
-      const TableRow(children: [
-        Center(child: Text(' 食品名 ')),
-        Center(child: Text(' 摂取量 ')),
-        Center(child: Text(' カロリー ')),
-      ])
-    ];
-
-    List<Map> recordsToday = await db.rawQuery(
-        'SELECT * FROM `food_records` WHERE `time` LIKE "${DateTime.now().year} ${DateTime.now().month} ${DateTime.now().day}%"');
-    for (var i in recordsToday) {
-      List<Widget> children = [
-        // Center(child: Text(' ${timeDisAssemble(i["time"])['hour:minute']} ', textScaleFactor: 1.1)),
-        TableCell(
-            verticalAlignment: TableCellVerticalAlignment.middle,
-            child: Center(
-                child: Text(
-                    i["exercise"].toString().length <= 12
-                        ? ' ${i["name"].toString().substring(0, min(12, i["name"].toString().length))} '
-                        : ' ${i["name"].toString().substring(0, min(11, i["name"].toString().length))}… ',
-                    textScaleFactor: 1.1))),
-        TableCell(
-            verticalAlignment: TableCellVerticalAlignment.middle,
-            child: Center(child: Text(' ${double.parse(i["amount"]).round()} g ', textScaleFactor: 1.1))),
-        TableCell(
-            verticalAlignment: TableCellVerticalAlignment.middle,
-            child: Center(child: Text(' ${double.parse(i["calorie"]).round()} kcal ', textScaleFactor: 1.1))),
-      ];
-      _recordsTodayTable.add(TableRow(
-        children: children,
-      ));
-    }
-    setState(() => foodRecordsTodayTable = _recordsTodayTable);
-    calorieToday = 0;
-    for (var i in recordsToday) {
-      calorieToday += double.parse(i['calorie'].toString());
-    }
-    List<double> _pfcBalance = [0, 0, 0];
-    for (var i in recordsToday) {
-      _pfcBalance[0] += double.parse(i['protein']);
-      _pfcBalance[1] += double.parse(i['fat']);
-      _pfcBalance[2] += double.parse(i['carb']);
-    }
-    double _pfcSum = _pfcBalance.reduce((a, b) => a + b);
-    for (var i = 0; i < 3; i++) {
-      pfcBalance[i] = _pfcSum == 0 ? 0 : (_pfcBalance[i] / _pfcSum * 10).round();
-    }
+  Future<void> displayAddFoodRecordPopup(BuildContext context) async {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(builder: (context, setState) {
+            return AlertDialog(
+              content: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    const Text('食品'),
+                    Center(
+                        child: Stack(children: <Widget>[
+                      Center(
+                          child: Container(
+                        height: 34,
+                        width: 230,
+                        margin: const EdgeInsets.only(top: 5),
+                        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+                          Text(
+                            exercise.length <= 16 ? food : food.substring(0, 15) + '...',
+                            textScaleFactor: 0.9,
+                            style: const TextStyle(color: Colors.white),
+                          )
+                        ]),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[800],
+                          borderRadius: BorderRadius.circular(4),
+                          boxShadow: const [
+                            BoxShadow(
+                              offset: Offset(0, 0),
+                              blurRadius: 2,
+                              spreadRadius: 2,
+                              color: Colors.black26,
+                            ),
+                          ],
+                        ),
+                      )),
+                      Center(
+                          child: Container(
+                              height: 40,
+                              width: 230,
+                              margin: const EdgeInsets.only(bottom: 10),
+                              child: SmartSelect<String>.single(
+                                  title: '',
+                                  placeholder: '',
+                                  value: '',
+                                  onChange: (value) {
+                                    if (value.value != '') {
+                                      setState(() {
+                                        food = value.value;
+                                      });
+                                      db.rawQuery('UPDATE `options` SET `food` = "${value.value}"');
+                                      value.value = '';
+                                    }
+                                  },
+                                  choiceItems: S2Choice.listFrom<String, Map>(
+                                    source: foodList,
+                                    value: (index, item) => item['name'],
+                                    title: (index, item) => item['name'],
+                                    group: (index, item) => item['group'],
+                                  ),
+                                  modalType: S2ModalType.fullPage,
+                                  choiceGrouped: true,
+                                  modalFilter: true,
+                                  modalFilterAuto: true,
+                                  modalHeaderStyle: S2ModalHeaderStyle(
+                                    backgroundColor: Colors.grey[850],
+                                    textStyle: const TextStyle(color: Colors.white),
+                                    iconTheme: const IconThemeData(color: Colors.white),
+                                    actionsIconTheme: const IconThemeData(color: Colors.white),
+                                  ),
+                                  modalStyle: S2ModalStyle(backgroundColor: Colors.grey[850]),
+                                  choiceStyle: const S2ChoiceStyle(
+                                      titleStyle: TextStyle(color: Colors.white), activeColor: Colors.white),
+                                  tileBuilder: (context, state) {
+                                    return S2Tile.fromState(
+                                      state,
+                                      leading: const Text(''),
+                                      trailing: const Text(''),
+                                    );
+                                  })))
+                    ])),
+                    const Text('摂取量'),
+                    Center(
+                        child: Container(
+                            alignment: Alignment.center,
+                            width: 180,
+                            height: 30,
+                            margin: const EdgeInsets.only(top: 10, bottom: 10),
+                            child: TextFormField(
+                              keyboardType: TextInputType.number,
+                              initialValue: amount.toStringAsFixed(1),
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              onChanged: (value) {
+                                amount = double.parse(value);
+                                db.rawQuery('UPDATE `options` SET `amount` = "$value"');
+                              },
+                              decoration: InputDecoration(
+                                suffix: const Text('[g]'),
+                                filled: true,
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: const BorderSide(
+                                    color: Colors.red,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: const BorderSide(
+                                    color: Colors.blue,
+                                    width: 1.0,
+                                  ),
+                                ),
+                              ),
+                            ))),
+                  ]),
+              actions: <Widget>[
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.red, // 背景
+                    onPrimary: Colors.white, // 文字色
+                    enableFeedback: false,
+                  ),
+                  child: const Text('キャンセル'),
+                  onPressed: () {
+                    audioPlayer.play('navigation_backward-selection.wav', volume: volume);
+                    setState(() {
+                      Navigator.pop(context);
+                    });
+                  },
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.green, // 背景
+                    onPrimary: Colors.white, // 文字色
+                    enableFeedback: false, // タッチ音をオフ
+                  ),
+                  child: const Text('保存'),
+                  onPressed: () {
+                    if (food != '' && amount != 0) {
+                      audioPlayer.play('hero_simple-celebration-01.wav', volume: volume);
+                      String now = dateTimeToString(DateTime.now());
+                      for (var i in foodList) {
+                        if (i['name'] == food) {
+                          Future(() async {
+                            await db.rawQuery('''
+                            INSERT INTO `food_records` 
+                            (`time`, `name`, `amount`, `calorie`, `protein`, `fat`, `carb`, `group`) 
+                            VALUES("$now", "${i['name']}", "$amount", 
+                            "${double.parse(i['calorie']) * amount / 100}",
+                            "${double.parse(i['protein']) * amount / 100}",
+                            "${double.parse(i['fat']) * amount / 100}",
+                            "${double.parse(i['carb']) * amount / 100}",
+                            "${i['group']}")''');
+                          });
+                          break;
+                        }
+                      }
+                      db.rawQuery('UPDATE `food` SET `used_time` = `used_time` + 1 WHERE `name` = "$food"');
+                      updateFoodData();
+                      showSimpleNotification(
+                        const Text("保存しました！", style: TextStyle(color: Colors.white)),
+                        background: Colors.green,
+                        position: NotificationPosition.bottom,
+                        slideDismissDirection: DismissDirection.down,
+                      );
+                      setState(() {
+                        Navigator.pop(context);
+                      });
+                    }
+                  },
+                ),
+              ],
+            );
+          });
+        });
   }
 
   Future<void> displayAddExerciseRecordPopup(BuildContext context) async {
@@ -634,6 +812,163 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
         });
   }
 
+  Future<void> displayEditFoodPopup(BuildContext context) async {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(builder: (context, setState) {
+            return AlertDialog(
+              content: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Center(
+                        child: SizedBox(
+                            width: 200,
+                            child: ElevatedButton.icon(
+                              icon: const Icon(
+                                Icons.search,
+                                color: Colors.white,
+                              ),
+                              label: const Text('一覧から追加する', textScaleFactor: 1.2),
+                              style: ElevatedButton.styleFrom(
+                                primary: Colors.green,
+                                onPrimary: Colors.white,
+                                enableFeedback: false,
+                              ),
+                              onPressed: () {
+                                audioPlayer.play('ui_tap-variant-01.wav', volume: volume);
+                                Navigator.of(context).pushNamed("/addFoodPage");
+                              },
+                            ))),
+                    Center(
+                        child: SizedBox(
+                            width: 200,
+                            child: ElevatedButton.icon(
+                              icon: const Icon(
+                                Icons.edit,
+                                color: Colors.white,
+                              ),
+                              label: const Text('手動で追加する', textScaleFactor: 1.2),
+                              style: ElevatedButton.styleFrom(
+                                primary: Colors.green,
+                                onPrimary: Colors.white,
+                                enableFeedback: false,
+                              ),
+                              onPressed: () {
+                                audioPlayer.play('ui_tap-variant-01.wav', volume: volume);
+                                displayManualAddFoodPopup(context);
+                              },
+                            ))),
+                    Center(
+                        child: Stack(children: <Widget>[
+                      Center(
+                          child: Container(
+                        height: 34,
+                        width: 200,
+                        margin: const EdgeInsets.only(top: 5),
+                        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: const <Widget>[
+                          Icon(
+                            Icons.delete,
+                            color: Colors.white,
+                          ),
+                          Text(
+                            ' 削除する',
+                            textScaleFactor: 1.1,
+                            style: TextStyle(color: Colors.white),
+                          )
+                        ]),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(4),
+                          boxShadow: const [
+                            BoxShadow(
+                              offset: Offset(0, 0),
+                              blurRadius: 2,
+                              spreadRadius: 2,
+                              color: Colors.black26,
+                            ),
+                          ],
+                        ),
+                      )),
+                      Container(
+                          height: 37,
+                          width: 200,
+                          margin: const EdgeInsets.only(top: 3, left: 15),
+                          child: SmartSelect<String>.single(
+                              title: '',
+                              placeholder: '',
+                              value: '',
+                              onChange: (value) {
+                                if (value.value != '') {
+                                  for (var i = 0; i < foodList.length; i++) {
+                                    if (foodList[i]['name'] == value.value) {
+                                      setState(() {
+                                        foodList.removeAt(i);
+                                        db.rawQuery('DELETE FROM `food` WHERE `name` = "${value.value}"');
+                                      });
+                                      break;
+                                    }
+                                  }
+                                  value.value = '';
+                                  audioPlayer.play('hero_simple-celebration-01.wav', volume: volume);
+                                  showSimpleNotification(
+                                    const Text("削除しました！", style: TextStyle(color: Colors.white)),
+                                    background: Colors.red,
+                                    position: NotificationPosition.bottom,
+                                    slideDismissDirection: DismissDirection.down,
+                                  );
+                                }
+                              },
+                              choiceItems: S2Choice.listFrom<String, Map>(
+                                source: foodList,
+                                value: (index, item) => item['name'],
+                                title: (index, item) => item['name'],
+                                group: (index, item) => item['group'],
+                              ),
+                              modalType: S2ModalType.fullPage,
+                              choiceGrouped: true,
+                              modalFilter: true,
+                              modalFilterAuto: true,
+                              modalHeaderStyle: S2ModalHeaderStyle(
+                                backgroundColor: Colors.grey[850],
+                                textStyle: const TextStyle(color: Colors.white),
+                                iconTheme: const IconThemeData(color: Colors.white),
+                                actionsIconTheme: const IconThemeData(color: Colors.white),
+                              ),
+                              modalStyle: S2ModalStyle(backgroundColor: Colors.grey[850]),
+                              choiceStyle: const S2ChoiceStyle(
+                                  titleStyle: TextStyle(color: Colors.white), activeColor: Colors.white),
+                              tileBuilder: (context, state) {
+                                return S2Tile.fromState(
+                                  state,
+                                  leading: const Text(''),
+                                  trailing: const Text(''),
+                                );
+                              })),
+                    ])),
+                  ]),
+              actions: <Widget>[
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.red, // 背景
+                    onPrimary: Colors.white, // 文字色
+                    enableFeedback: false,
+                  ),
+                  child: const Text('戻る'),
+                  onPressed: () {
+                    audioPlayer.play('navigation_backward-selection.wav', volume: volume);
+                    setState(() {
+                      Navigator.pop(context);
+                    });
+                  },
+                )
+              ],
+            );
+          });
+        });
+  }
+
   Future<void> displayEditExercisePopup(BuildContext context) async {
     return showDialog(
         context: context,
@@ -747,484 +1082,6 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                               },
                               choiceItems: S2Choice.listFrom<String, Map>(
                                 source: exerciseList,
-                                value: (index, item) => item['name'],
-                                title: (index, item) => item['name'],
-                                group: (index, item) => item['group'],
-                              ),
-                              modalType: S2ModalType.fullPage,
-                              choiceGrouped: true,
-                              modalFilter: true,
-                              modalFilterAuto: true,
-                              modalHeaderStyle: S2ModalHeaderStyle(
-                                backgroundColor: Colors.grey[850],
-                                textStyle: const TextStyle(color: Colors.white),
-                                iconTheme: const IconThemeData(color: Colors.white),
-                                actionsIconTheme: const IconThemeData(color: Colors.white),
-                              ),
-                              modalStyle: S2ModalStyle(backgroundColor: Colors.grey[850]),
-                              choiceStyle: const S2ChoiceStyle(
-                                  titleStyle: TextStyle(color: Colors.white), activeColor: Colors.white),
-                              tileBuilder: (context, state) {
-                                return S2Tile.fromState(
-                                  state,
-                                  leading: const Text(''),
-                                  trailing: const Text(''),
-                                );
-                              })),
-                    ])),
-                  ]),
-              actions: <Widget>[
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.red, // 背景
-                    onPrimary: Colors.white, // 文字色
-                    enableFeedback: false,
-                  ),
-                  child: const Text('戻る'),
-                  onPressed: () {
-                    audioPlayer.play('navigation_backward-selection.wav', volume: volume);
-                    setState(() {
-                      Navigator.pop(context);
-                    });
-                  },
-                )
-              ],
-            );
-          });
-        });
-  }
-
-  Future<void> displayManualAddExercisePopup(BuildContext context) async {
-    String _exercise = '';
-    int? selectedIndex2 = 0;
-    String _group = exerciseGroupCandidate[selectedIndex2];
-    List<Widget> buildItems() {
-      return exerciseGroupCandidate.map((val) => MySelectionItem(title: val)).toList();
-    }
-
-    return showDialog(
-        context: context,
-        builder: (context) {
-          return StatefulBuilder(builder: (context, setState) {
-            return AlertDialog(
-              content: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    const Text('種目名'),
-                    Center(
-                        child: Container(
-                            alignment: Alignment.center,
-                            //width: 180,
-                            //height: 30,
-                            margin: const EdgeInsets.only(top: 10, bottom: 10),
-                            child: TextFormField(
-                              initialValue: '',
-                              textAlign: TextAlign.center,
-                              maxLines: 1,
-                              onChanged: (value) {
-                                _exercise = value;
-                              },
-                              decoration: InputDecoration(
-                                hintText: "入力して下さい",
-                                // fillColor: Colors.green[100],
-                                filled: true,
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                  borderSide: const BorderSide(
-                                    color: Colors.red,
-                                    width: 2.0,
-                                  ),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                  borderSide: const BorderSide(
-                                    color: Colors.blue,
-                                    width: 1.0,
-                                  ),
-                                ),
-                              ),
-                            ))),
-                    const Text('分類'),
-                    Container(
-                        alignment: Alignment.center,
-                        //width: 180,
-                        //height: 30,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.blue),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        margin: const EdgeInsets.only(top: 10),
-                        child: DirectSelect(
-                          itemExtent: 35.0,
-                          selectedIndex: selectedIndex2!,
-                          child: MySelectionItem(
-                            isForList: true,
-                            title: exerciseGroupCandidate[selectedIndex2!],
-                          ),
-                          onSelectedItemChanged: (index) {
-                            _group = exerciseGroupCandidate[index!];
-                            setState(() {
-                              selectedIndex2 = index;
-                            });
-                          },
-                          mode: DirectSelectMode.tap,
-                          items: buildItems(),
-                          backgroundColor: Colors.black,
-                          selectionColor: Colors.white12,
-                        )),
-                  ]),
-              actions: <Widget>[
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.red, // 背景
-                    onPrimary: Colors.white, // 文字色
-                    enableFeedback: false,
-                  ),
-                  child: const Text('キャンセル'),
-                  onPressed: () {
-                    audioPlayer.play('navigation_backward-selection.wav', volume: volume);
-                    setState(() {
-                      Navigator.pop(context);
-                    });
-                  },
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.green, // 背景
-                    onPrimary: Colors.white, // 文字色
-                    enableFeedback: false, // タッチ音をオフ
-                  ),
-                  child: const Text('保存'),
-                  onPressed: () {
-                    bool yes = true;
-                    for (var i in exerciseList) {
-                      if (i['name'] == _exercise) yes = false;
-                    }
-                    if (yes) {
-                      setState(() {
-                        exerciseList.add({'used_time': 0, 'name': _exercise, 'group': _group});
-                        db.rawQuery(
-                            'INSERT INTO `exercise` (`name`, `group`, `used_time`) SELECT "$_exercise", "$_group", "0"');
-                      });
-                      audioPlayer.play('hero_simple-celebration-01.wav', volume: volume);
-                      showSimpleNotification(
-                        const Text("保存しました！", style: TextStyle(color: Colors.white)),
-                        background: Colors.green,
-                        position: NotificationPosition.bottom,
-                        slideDismissDirection: DismissDirection.down,
-                      );
-                    } else {
-                      showSimpleNotification(
-                        const Text("既に保存済みです！", style: TextStyle(color: Colors.white)),
-                        background: Colors.red,
-                        position: NotificationPosition.bottom,
-                        slideDismissDirection: DismissDirection.down,
-                      );
-                    }
-                    setState(() {
-                      Navigator.pop(context);
-                    });
-                  },
-                ),
-              ],
-            );
-          });
-        });
-  }
-
-  Future<void> displayAddFoodRecordPopup(BuildContext context) async {
-    return showDialog(
-        context: context,
-        builder: (context) {
-          return StatefulBuilder(builder: (context, setState) {
-            return AlertDialog(
-              content: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    const Text('食品'),
-                    Center(
-                        child: Stack(children: <Widget>[
-                      Center(
-                          child: Container(
-                        height: 34,
-                        width: 230,
-                        margin: const EdgeInsets.only(top: 5),
-                        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-                          Text(
-                            exercise.length <= 16 ? food : food.substring(0, 15) + '...',
-                            textScaleFactor: 0.9,
-                            style: const TextStyle(color: Colors.white),
-                          )
-                        ]),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[800],
-                          borderRadius: BorderRadius.circular(4),
-                          boxShadow: const [
-                            BoxShadow(
-                              offset: Offset(0, 0),
-                              blurRadius: 2,
-                              spreadRadius: 2,
-                              color: Colors.black26,
-                            ),
-                          ],
-                        ),
-                      )),
-                      Center(
-                          child: Container(
-                              height: 40,
-                              width: 230,
-                              margin: const EdgeInsets.only(bottom: 10),
-                              child: SmartSelect<String>.single(
-                                  title: '',
-                                  placeholder: '',
-                                  value: '',
-                                  onChange: (value) {
-                                    if (value.value != '') {
-                                      setState(() {
-                                        food = value.value;
-                                      });
-                                      db.rawQuery('UPDATE `options` SET `food` = "${value.value}"');
-                                      value.value = '';
-                                    }
-                                  },
-                                  choiceItems: S2Choice.listFrom<String, Map>(
-                                    source: foodList,
-                                    value: (index, item) => item['name'],
-                                    title: (index, item) => item['name'],
-                                    group: (index, item) => item['group'],
-                                  ),
-                                  modalType: S2ModalType.fullPage,
-                                  choiceGrouped: true,
-                                  modalFilter: true,
-                                  modalFilterAuto: true,
-                                  modalHeaderStyle: S2ModalHeaderStyle(
-                                    backgroundColor: Colors.grey[850],
-                                    textStyle: const TextStyle(color: Colors.white),
-                                    iconTheme: const IconThemeData(color: Colors.white),
-                                    actionsIconTheme: const IconThemeData(color: Colors.white),
-                                  ),
-                                  modalStyle: S2ModalStyle(backgroundColor: Colors.grey[850]),
-                                  choiceStyle: const S2ChoiceStyle(
-                                      titleStyle: TextStyle(color: Colors.white), activeColor: Colors.white),
-                                  tileBuilder: (context, state) {
-                                    return S2Tile.fromState(
-                                      state,
-                                      leading: const Text(''),
-                                      trailing: const Text(''),
-                                    );
-                                  })))
-                    ])),
-                    const Text('摂取量'),
-                    Center(
-                        child: Container(
-                            alignment: Alignment.center,
-                            width: 180,
-                            height: 30,
-                            margin: const EdgeInsets.only(top: 10, bottom: 10),
-                            child: TextFormField(
-                              keyboardType: TextInputType.number,
-                              initialValue: amount.toStringAsFixed(1),
-                              textAlign: TextAlign.center,
-                              maxLines: 1,
-                              onChanged: (value) {
-                                amount = double.parse(value);
-                                db.rawQuery('UPDATE `options` SET `amount` = "$value"');
-                              },
-                              decoration: InputDecoration(
-                                suffix: const Text('[g]'),
-                                filled: true,
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                  borderSide: const BorderSide(
-                                    color: Colors.red,
-                                    width: 2.0,
-                                  ),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                  borderSide: const BorderSide(
-                                    color: Colors.blue,
-                                    width: 1.0,
-                                  ),
-                                ),
-                              ),
-                            ))),
-                  ]),
-              actions: <Widget>[
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.red, // 背景
-                    onPrimary: Colors.white, // 文字色
-                    enableFeedback: false,
-                  ),
-                  child: const Text('キャンセル'),
-                  onPressed: () {
-                    audioPlayer.play('navigation_backward-selection.wav', volume: volume);
-                    setState(() {
-                      Navigator.pop(context);
-                    });
-                  },
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.green, // 背景
-                    onPrimary: Colors.white, // 文字色
-                    enableFeedback: false, // タッチ音をオフ
-                  ),
-                  child: const Text('保存'),
-                  onPressed: () {
-                    if (food != '' && amount != 0) {
-                      audioPlayer.play('hero_simple-celebration-01.wav', volume: volume);
-                      String now =
-                          "${DateTime.now().year} ${DateTime.now().month} ${DateTime.now().day} ${DateTime.now().hour} ${DateTime.now().minute}";
-                      for (var i in foodList) {
-                        if (i['name'] == food) {
-                          Future(() async {
-                            await db.rawQuery('''
-                            INSERT INTO `food_records` 
-                            (`time`, `name`, `amount`, `calorie`, `protein`, `fat`, `carb`, `group`) 
-                            VALUES("$now", "${i['name']}", "$amount", 
-                            "${double.parse(i['calorie']) * amount / 100}",
-                            "${double.parse(i['protein']) * amount / 100}",
-                            "${double.parse(i['fat']) * amount / 100}",
-                            "${double.parse(i['carb']) * amount / 100}",
-                            "${i['group']}")''');
-                          });
-                          break;
-                        }
-                      }
-                      db.rawQuery('UPDATE `food` SET `used_time` = `used_time` + 1 WHERE `name` = "$food"');
-                      updateFoodData();
-                      showSimpleNotification(
-                        const Text("保存しました！", style: TextStyle(color: Colors.white)),
-                        background: Colors.green,
-                        position: NotificationPosition.bottom,
-                        slideDismissDirection: DismissDirection.down,
-                      );
-                      setState(() {
-                        Navigator.pop(context);
-                      });
-                    }
-                  },
-                ),
-              ],
-            );
-          });
-        });
-  }
-
-  Future<void> displayEditFoodPopup(BuildContext context) async {
-    return showDialog(
-        context: context,
-        builder: (context) {
-          return StatefulBuilder(builder: (context, setState) {
-            return AlertDialog(
-              content: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Center(
-                        child: SizedBox(
-                            width: 200,
-                            child: ElevatedButton.icon(
-                              icon: const Icon(
-                                Icons.search,
-                                color: Colors.white,
-                              ),
-                              label: const Text('一覧から追加する', textScaleFactor: 1.2),
-                              style: ElevatedButton.styleFrom(
-                                primary: Colors.green,
-                                onPrimary: Colors.white,
-                                enableFeedback: false,
-                              ),
-                              onPressed: () {
-                                audioPlayer.play('ui_tap-variant-01.wav', volume: volume);
-                                Navigator.of(context).pushNamed("/addFoodPage");
-                              },
-                            ))),
-                    Center(
-                        child: SizedBox(
-                            width: 200,
-                            child: ElevatedButton.icon(
-                              icon: const Icon(
-                                Icons.edit,
-                                color: Colors.white,
-                              ),
-                              label: const Text('手動で追加する', textScaleFactor: 1.2),
-                              style: ElevatedButton.styleFrom(
-                                primary: Colors.green,
-                                onPrimary: Colors.white,
-                                enableFeedback: false,
-                              ),
-                              onPressed: () {
-                                audioPlayer.play('ui_tap-variant-01.wav', volume: volume);
-                                displayManualAddFoodPopup(context);
-                              },
-                            ))),
-                    Center(
-                        child: Stack(children: <Widget>[
-                      Center(
-                          child: Container(
-                        height: 34,
-                        width: 200,
-                        margin: const EdgeInsets.only(top: 5),
-                        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: const <Widget>[
-                          Icon(
-                            Icons.delete,
-                            color: Colors.white,
-                          ),
-                          Text(
-                            ' 削除する',
-                            textScaleFactor: 1.1,
-                            style: TextStyle(color: Colors.white),
-                          )
-                        ]),
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(4),
-                          boxShadow: const [
-                            BoxShadow(
-                              offset: Offset(0, 0),
-                              blurRadius: 2,
-                              spreadRadius: 2,
-                              color: Colors.black26,
-                            ),
-                          ],
-                        ),
-                      )),
-                      Container(
-                          height: 37,
-                          width: 200,
-                          margin: const EdgeInsets.only(top: 3, left: 15),
-                          child: SmartSelect<String>.single(
-                              title: '',
-                              placeholder: '',
-                              value: '',
-                              onChange: (value) {
-                                if (value.value != '') {
-                                  for (var i = 0; i < foodList.length; i++) {
-                                    if (foodList[i]['name'] == value.value) {
-                                      setState(() {
-                                        foodList.removeAt(i);
-                                        db.rawQuery('DELETE FROM `food` WHERE `name` = "${value.value}"');
-                                      });
-                                      break;
-                                    }
-                                  }
-                                  value.value = '';
-                                  audioPlayer.play('hero_simple-celebration-01.wav', volume: volume);
-                                  showSimpleNotification(
-                                    const Text("削除しました！", style: TextStyle(color: Colors.white)),
-                                    background: Colors.red,
-                                    position: NotificationPosition.bottom,
-                                    slideDismissDirection: DismissDirection.down,
-                                  );
-                                }
-                              },
-                              choiceItems: S2Choice.listFrom<String, Map>(
-                                source: foodList,
                                 value: (index, item) => item['name'],
                                 title: (index, item) => item['name'],
                                 group: (index, item) => item['group'],
@@ -1532,6 +1389,145 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                         });
                         db.rawQuery(
                             'INSERT INTO `food` (`name`, `group`, `used_time`, `calorie`, `protein`, `fat`, `carb`) SELECT "$_food", "$_group", "0", "$_calorie", "$_protein", "$_fat", "$_carb"');
+                      });
+                      audioPlayer.play('hero_simple-celebration-01.wav', volume: volume);
+                      showSimpleNotification(
+                        const Text("保存しました！", style: TextStyle(color: Colors.white)),
+                        background: Colors.green,
+                        position: NotificationPosition.bottom,
+                        slideDismissDirection: DismissDirection.down,
+                      );
+                    } else {
+                      showSimpleNotification(
+                        const Text("既に保存済みです！", style: TextStyle(color: Colors.white)),
+                        background: Colors.red,
+                        position: NotificationPosition.bottom,
+                        slideDismissDirection: DismissDirection.down,
+                      );
+                    }
+                    setState(() {
+                      Navigator.pop(context);
+                    });
+                  },
+                ),
+              ],
+            );
+          });
+        });
+  }
+
+  Future<void> displayManualAddExercisePopup(BuildContext context) async {
+    String _exercise = '';
+    int? selectedIndex2 = 0;
+    String _group = exerciseGroupCandidate[selectedIndex2];
+    List<Widget> buildItems() {
+      return exerciseGroupCandidate.map((val) => MySelectionItem(title: val)).toList();
+    }
+
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(builder: (context, setState) {
+            return AlertDialog(
+              content: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    const Text('種目名'),
+                    Center(
+                        child: Container(
+                            alignment: Alignment.center,
+                            //width: 180,
+                            //height: 30,
+                            margin: const EdgeInsets.only(top: 10, bottom: 10),
+                            child: TextFormField(
+                              initialValue: '',
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              onChanged: (value) {
+                                _exercise = value;
+                              },
+                              decoration: InputDecoration(
+                                hintText: "入力して下さい",
+                                // fillColor: Colors.green[100],
+                                filled: true,
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: const BorderSide(
+                                    color: Colors.red,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: const BorderSide(
+                                    color: Colors.blue,
+                                    width: 1.0,
+                                  ),
+                                ),
+                              ),
+                            ))),
+                    const Text('分類'),
+                    Container(
+                        alignment: Alignment.center,
+                        //width: 180,
+                        //height: 30,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.blue),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        margin: const EdgeInsets.only(top: 10),
+                        child: DirectSelect(
+                          itemExtent: 35.0,
+                          selectedIndex: selectedIndex2!,
+                          child: MySelectionItem(
+                            isForList: true,
+                            title: exerciseGroupCandidate[selectedIndex2!],
+                          ),
+                          onSelectedItemChanged: (index) {
+                            _group = exerciseGroupCandidate[index!];
+                            setState(() {
+                              selectedIndex2 = index;
+                            });
+                          },
+                          mode: DirectSelectMode.tap,
+                          items: buildItems(),
+                          backgroundColor: Colors.black,
+                          selectionColor: Colors.white12,
+                        )),
+                  ]),
+              actions: <Widget>[
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.red, // 背景
+                    onPrimary: Colors.white, // 文字色
+                    enableFeedback: false,
+                  ),
+                  child: const Text('キャンセル'),
+                  onPressed: () {
+                    audioPlayer.play('navigation_backward-selection.wav', volume: volume);
+                    setState(() {
+                      Navigator.pop(context);
+                    });
+                  },
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.green, // 背景
+                    onPrimary: Colors.white, // 文字色
+                    enableFeedback: false, // タッチ音をオフ
+                  ),
+                  child: const Text('保存'),
+                  onPressed: () {
+                    bool yes = true;
+                    for (var i in exerciseList) {
+                      if (i['name'] == _exercise) yes = false;
+                    }
+                    if (yes) {
+                      setState(() {
+                        exerciseList.add({'used_time': 0, 'name': _exercise, 'group': _group});
+                        db.rawQuery(
+                            'INSERT INTO `exercise` (`name`, `group`, `used_time`) SELECT "$_exercise", "$_group", "0"');
                       });
                       audioPlayer.play('hero_simple-celebration-01.wav', volume: volume);
                       showSimpleNotification(

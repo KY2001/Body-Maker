@@ -111,17 +111,12 @@ Future<void> initDatabase() async {
   });
   await db.rawQuery('SELECT MIN(`time`) as min FROM `exercise_records`').then((value) {
     value = value[0]['min'];
-    firstDay = DateTime(int.parse(timeDisAssemble(value)['year']!),
-        int.parse(timeDisAssemble(value)['month']!), int.parse(timeDisAssemble(value)['day']!));
+    firstDay = timeDisAssemble2(value);
   });
   await db.rawQuery('SELECT MIN(`time`) as min FROM `food_records`').then((value) {
     value = value[0]['min'];
-    firstDay = DateTime(int.parse(timeDisAssemble(value)['year']!),
-                int.parse(timeDisAssemble(value)['month']!), int.parse(timeDisAssemble(value)['day']!))
-            .isBefore(firstDay)
-        ? DateTime(int.parse(timeDisAssemble(value)['year']!), int.parse(timeDisAssemble(value)['month']!),
-            int.parse(timeDisAssemble(value)['day']!))
-        : firstDay;
+    firstDay =
+        timeDisAssemble2(value).isBefore(firstDay) ? timeDisAssemble2(value) : firstDay;
   });
   await db.rawQuery('SELECT * FROM `exercise_records`').then((value) {
     exerciseRecords = value;

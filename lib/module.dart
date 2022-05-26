@@ -18,6 +18,24 @@ Map<String, String> timeDisAssemble(String time) {
   };
 }
 
+DateTime timeDisAssemble2(String time) {
+  List<int> timeSplit = time.split(" ").map((value) => int.parse(value)).toList();
+  return DateTime(timeSplit[0], timeSplit[1], timeSplit[2], timeSplit[3], timeSplit[4]);
+}
+
+String dateTimeToString(DateTime time) {
+  // 年から分まで
+  String ret =
+      "${DateTime.now().year} ${DateTime.now().month.toString().padLeft(2)} ${DateTime.now().day.toString().padLeft(2)} ${DateTime.now().hour.toString().padLeft(2)} ${DateTime.now().minute.toString().padLeft(2)}";
+  return ret;
+}
+
+extension DateOnlyCompare on DateTime {
+  bool isSameDate(DateTime other) {
+    return year == other.year && month == other.month && day == other.day;
+  }
+}
+
 class MySelectionItem extends StatelessWidget {
   final String? title;
   final bool isForList;
