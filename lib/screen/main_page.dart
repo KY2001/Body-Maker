@@ -128,7 +128,7 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                     Text.rich(TextSpan(
                       style: const TextStyle(fontSize: 21),
                       children: [
-                        const TextSpan(text: "総負荷量: "),
+                        const TextSpan(text: "総強度: "),
                         TextSpan(
                             text: "${exerciseVolume.toInt()}",
                             style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -147,7 +147,7 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                   focusedDay: focusedDay,
                   eventLoader: (DateTime day) {
                     List<Event> ret = [];
-                    for (var i in foodRecords!) {
+                    for (var i in foodRecords) {
                       DateTime recordTime = timeDisAssemble2(i['time']);
                       if (recordTime.isSameDate(day)) {
                         ret.add(const Event('temp'));
@@ -335,10 +335,9 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
     ];
 
     List<Map> recordsToday = await db.rawQuery(
-        'SELECT * FROM `food_records` WHERE `time` LIKE "${DateTime.now().year} ${DateTime.now().month} ${DateTime.now().day}%"');
+        'SELECT * FROM `food_records` WHERE `time` LIKE "${dateTimeToString(DateTime.now()).substring(0, 10)}%"');
     for (var i in recordsToday) {
       List<Widget> children = [
-        // Center(child: Text(' ${timeDisAssemble(i["time"])['hour:minute']} ', textScaleFactor: 1.1)),
         TableCell(
             verticalAlignment: TableCellVerticalAlignment.middle,
             child: Center(
@@ -388,7 +387,7 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
     ];
 
     List<Map> recordsToday = await db.rawQuery(
-        'SELECT * FROM `exercise_records` WHERE `time` LIKE "${DateTime.now().year} ${DateTime.now().month} ${DateTime.now().day}%"');
+        'SELECT * FROM `exercise_records` WHERE `time` LIKE "${dateTimeToString(DateTime.now()).substring(0, 10)}%"');
     for (var i in recordsToday) {
       List<Widget> children = [
         TableCell(

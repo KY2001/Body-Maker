@@ -24,9 +24,8 @@ DateTime timeDisAssemble2(String time) {
 }
 
 String dateTimeToString(DateTime time) {
-  // 年から分まで
   String ret =
-      "${DateTime.now().year} ${DateTime.now().month.toString().padLeft(2)} ${DateTime.now().day.toString().padLeft(2)} ${DateTime.now().hour.toString().padLeft(2)} ${DateTime.now().minute.toString().padLeft(2)}";
+      "${time.year} ${time.month.toString().padLeft(2, "0")} ${time.day.toString().padLeft(2, "0")} ${time.hour.toString().padLeft(2, "0")} ${time.minute.toString().padLeft(2, "0")}";
   return ret;
 }
 

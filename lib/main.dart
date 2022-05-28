@@ -20,22 +20,20 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return OverlaySupport.global(
         child: MaterialApp(
-          title: 'トレメモ',
-          theme: ThemeData(
-            brightness: Brightness.light,
-          ),
-          darkTheme: ThemeData(
-            fontFamily: 'NotoSansJP',
-            brightness: Brightness.dark,
-          ),
-          themeMode: ThemeMode.dark,
-          home: const MainPage(),
-          routes: <String, WidgetBuilder>{
-            '/home': (BuildContext context) => const MainPage(),
-            '/optionalPage': (BuildContext context) => const OptionalPage(),
-            '/addExercisePage': (BuildContext context) => const AddExercisePage(),
-            '/addFoodPage': (BuildContext context) => const AddFoodPage(),
-          },
-        ));
+      title: 'トレメモ',
+      theme: ThemeData(
+        brightness: Brightness.light,
+      ),
+      darkTheme: ThemeData(
+          fontFamily: 'NotoSansJP', brightness: Brightness.dark, scaffoldBackgroundColor: Colors.black),
+      themeMode: ThemeMode.dark,
+      home: const MainPage(),
+      routes: <String, WidgetBuilder>{
+        '/home': (BuildContext context) => const MainPage(),
+        '/optionalPage': (BuildContext context) => const OptionalPage(),
+        '/addExercisePage': (BuildContext context) => const AddExercisePage(),
+        '/addFoodPage': (BuildContext context) => const AddFoodPage(),
+      },
+    ));
   }
 }
