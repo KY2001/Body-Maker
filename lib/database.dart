@@ -11,15 +11,16 @@ Future<void> getDatabase() async {
   if (db == '') db = await openDatabase(path, version: 1);
 }
 
-Future<void> initDatabase() async {
-  /*
+Future<void> deleteDatabases() async {
   await db.rawQuery('DROP TABLE IF EXISTS `exercise_records`');
   await db.rawQuery('DROP TABLE IF EXISTS `food_records`');
   await db.rawQuery('DROP TABLE IF EXISTS `records`');
   await db.rawQuery('DROP TABLE IF EXISTS `options`');
   await db.rawQuery('DROP TABLE IF EXISTS `exercise`');
   await db.rawQuery('DROP TABLE IF EXISTS `food`');
-  */
+}
+
+Future<void> initDatabases() async {
   await db.rawQuery(''' 
   CREATE TABLE IF NOT EXISTS `exercise_records` (
   `id` INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -82,11 +83,50 @@ Future<void> initDatabase() async {
    `used_time` INTEGER NOT NULL
    )
    ''');
+}
+
+Future<void> addTestCases() async {
+  var rng = Random();
+  foodSearchList.forEach((group, list) {
+    list = [...list]..shuffle(); // deep copy
+    for (var i = 0; i < min(list.length, 5); i++) {
+      db.rawQuery(
+          'INSERT INTO `food` (`name`, `calorie`, `protein`, `fat`, `carb`, `group`, `used_time`) SELECT "${list[i]['name']}", "${list[i]['calorie']}", "${list[i]['protein']}", "${list[i]['fat']}", "${list[i]['carb']}","$group", "0"');
+      for (var j = 0; j < 20; j++) {
+        DateTime randomTime = DateTime(DateTime.now().year - rng.nextInt(3), 1 + rng.nextInt(12),
+            1 + rng.nextInt(28), 1 + rng.nextInt(23), 1 + rng.nextInt(59));
+        amount = rng.nextDouble() * 100;
+        db.rawQuery('''                        
+      INSERT INTO `food_records` 
+      (`time`, `name`, `amount`, `calorie`, `protein`, `fat`, `carb`, `group`) 
+      VALUES("${dateTimeToString(randomTime)}", "${list[i]['name']}", "$amount", 
+      "${double.parse(list[i]['calorie']) * amount / 100}",
+      "${double.parse(list[i]['protein']) * amount / 100}",
+      "${double.parse(list[i]['fat']) * amount / 100}",
+      "${double.parse(list[i]['carb']) * amount / 100}",
+      "$group")''');
+      }
+    }
+  });
+  exerciseSearchList.forEach((group, list) {
+    list = [...list]..shuffle(); // deep copy
+    for (var i = 0; i < min(list.length, 5); i++) {
+      db.rawQuery(
+          'INSERT INTO `exercise` (`name`, `group`, `used_time`) SELECT "${list[i]['name']}", "$group", "0"');
+      for (var j = 0; j < 20; j++) {
+        DateTime randomTime = DateTime(DateTime.now().year - rng.nextInt(3), 1 + rng.nextInt(12),
+            1 + rng.nextInt(28), 1 + rng.nextInt(23), 1 + rng.nextInt(59));
+        db.rawQuery(
+            'INSERT INTO `exercise_records` (`time`, `exercise`, `weight`, `rep`, `set`) VALUES("${dateTimeToString(randomTime)}", "${list[i]['name']}", "${(rng.nextDouble() * 100).toStringAsFixed(1)}", "${rng.nextInt(10)}", "${rng.nextInt(5)}")');
+      }
+    }
+  });
+}
+
+Future<void> initialTasks() async {
   await db.rawQuery('INSERT OR IGNORE INTO `options` (`id`) VALUES(1)');
   await db.rawQuery('SELECT * FROM `exercise` ORDER BY `used_time`').then((value) {
-    for (var row in value) {
-      exerciseList.add({'used_time': 0, 'name': row['name'], 'group': row['group']});
-    }
+    value.forEach((row) => exerciseList.add({'used_time': 0, 'name': row['name'], 'group': row['group']}));
   });
   await db.rawQuery('SELECT * FROM `options`').then((value) {
     value = value[0];
@@ -105,9 +145,7 @@ Future<void> initDatabase() async {
     amount = double.parse(value['amount']);
   });
   await db.rawQuery('SELECT * FROM `food`').then((value) {
-    for (var i in value) {
-      foodList.add(i);
-    }
+    value.forEach((i) => foodList.add(i));
   });
   await db.rawQuery('SELECT MIN(`time`) as min FROM `exercise_records`').then((value) {
     if (value[0]['min'] != null) {

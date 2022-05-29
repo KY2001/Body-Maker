@@ -23,7 +23,10 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
     super.initState();
     Future(() async {
       await getDatabase();
-      await initDatabase();
+      await deleteDatabases();
+      await initDatabases();
+      await addTestCases();
+      await initialTasks();
       await updateExerciseData();
       await updateFoodData();
     });
@@ -581,14 +584,13 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
                   onPressed: () {
                     if (food != '' && amount != 0) {
                       audioPlayer.play('hero_simple-celebration-01.wav', volume: volume);
-                      String now = dateTimeToString(DateTime.now());
                       for (var i in foodList) {
                         if (i['name'] == food) {
                           Future(() async {
                             await db.rawQuery('''
                             INSERT INTO `food_records` 
                             (`time`, `name`, `amount`, `calorie`, `protein`, `fat`, `carb`, `group`) 
-                            VALUES("$now", "${i['name']}", "$amount", 
+                            VALUES("${dateTimeToString(DateTime.now())}", "${i['name']}", "$amount", 
                             "${double.parse(i['calorie']) * amount / 100}",
                             "${double.parse(i['protein']) * amount / 100}",
                             "${double.parse(i['fat']) * amount / 100}",
