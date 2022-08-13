@@ -1,4 +1,4 @@
-# Diet App for weight trainers
+# Diet  App for weight trainers
 
 ## To Do
 - [x] Implement training record function.
